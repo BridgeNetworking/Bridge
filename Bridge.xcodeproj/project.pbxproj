@@ -1,0 +1,355 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXAggregateTarget section */
+		E77A6DEE1B6A698800070837 /* Bridge-Universal */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = E77A6DEF1B6A698800070837 /* Build configuration list for PBXAggregateTarget "Bridge-Universal" */;
+			buildPhases = (
+				E77A6DF21B6A699200070837 /* ShellScript */,
+			);
+			dependencies = (
+			);
+			name = "Bridge-Universal";
+			productName = "Bridge-Universal";
+		};
+/* End PBXAggregateTarget section */
+
+/* Begin PBXBuildFile section */
+		E77A6DE11B6A690800070837 /* Bridge.h in Headers */ = {isa = PBXBuildFile; fileRef = E77A6DE01B6A690800070837 /* Bridge.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E77A6DEB1B6A695100070837 /* Bridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = E77A6DE81B6A695100070837 /* Bridge.swift */; };
+		E77A6DEC1B6A695100070837 /* Encoding.swift in Sources */ = {isa = PBXBuildFile; fileRef = E77A6DE91B6A695100070837 /* Encoding.swift */; };
+		E77A6DED1B6A695100070837 /* Endpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = E77A6DEA1B6A695100070837 /* Endpoint.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		E77A6DDD1B6A690800070837 /* Bridge.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Bridge.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		E77A6DE01B6A690800070837 /* Bridge.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Bridge.h; sourceTree = "<group>"; };
+		E77A6DE21B6A690800070837 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		E77A6DE81B6A695100070837 /* Bridge.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Bridge.swift; sourceTree = "<group>"; };
+		E77A6DE91B6A695100070837 /* Encoding.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Encoding.swift; sourceTree = "<group>"; };
+		E77A6DEA1B6A695100070837 /* Endpoint.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Endpoint.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		E77A6DD91B6A690800070837 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		E77A6DD31B6A690800070837 = {
+			isa = PBXGroup;
+			children = (
+				E77A6DDF1B6A690800070837 /* Bridge */,
+				E77A6DDE1B6A690800070837 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		E77A6DDE1B6A690800070837 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				E77A6DDD1B6A690800070837 /* Bridge.framework */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		E77A6DDF1B6A690800070837 /* Bridge */ = {
+			isa = PBXGroup;
+			children = (
+				E77A6DE81B6A695100070837 /* Bridge.swift */,
+				E77A6DE91B6A695100070837 /* Encoding.swift */,
+				E77A6DEA1B6A695100070837 /* Endpoint.swift */,
+				E77A6DE01B6A690800070837 /* Bridge.h */,
+				E77A6DE21B6A690800070837 /* Info.plist */,
+			);
+			path = Bridge;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		E77A6DDA1B6A690800070837 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E77A6DE11B6A690800070837 /* Bridge.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		E77A6DDC1B6A690800070837 /* Bridge */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E77A6DE51B6A690800070837 /* Build configuration list for PBXNativeTarget "Bridge" */;
+			buildPhases = (
+				E77A6DD81B6A690800070837 /* Sources */,
+				E77A6DD91B6A690800070837 /* Frameworks */,
+				E77A6DDA1B6A690800070837 /* Headers */,
+				E77A6DDB1B6A690800070837 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Bridge;
+			productName = Bridge;
+			productReference = E77A6DDD1B6A690800070837 /* Bridge.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		E77A6DD41B6A690800070837 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastSwiftUpdateCheck = 0700;
+				LastUpgradeCheck = 0700;
+				ORGANIZATIONNAME = Zumper;
+				TargetAttributes = {
+					E77A6DDC1B6A690800070837 = {
+						CreatedOnToolsVersion = 7.0;
+					};
+					E77A6DEE1B6A698800070837 = {
+						CreatedOnToolsVersion = 7.0;
+					};
+				};
+			};
+			buildConfigurationList = E77A6DD71B6A690800070837 /* Build configuration list for PBXProject "Bridge" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = E77A6DD31B6A690800070837;
+			productRefGroup = E77A6DDE1B6A690800070837 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				E77A6DDC1B6A690800070837 /* Bridge */,
+				E77A6DEE1B6A698800070837 /* Bridge-Universal */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		E77A6DDB1B6A690800070837 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		E77A6DF21B6A699200070837 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "######################\n# Options\n######################\n\nREVEAL_ARCHIVE_IN_FINDER=false\n\nFRAMEWORK_NAME=\"${PROJECT_NAME}\"\n\nSIMULATOR_LIBRARY_PATH=\"${BUILD_DIR}/${CONFIGURATION}-iphonesimulator/${FRAMEWORK_NAME}.framework\"\n\nDEVICE_LIBRARY_PATH=\"${BUILD_DIR}/${CONFIGURATION}-iphoneos/${FRAMEWORK_NAME}.framework\"\n\nUNIVERSAL_LIBRARY_DIR=\"${BUILD_DIR}/${CONFIGURATION}-iphoneuniversal\"\n\nFRAMEWORK=\"${UNIVERSAL_LIBRARY_DIR}/${FRAMEWORK_NAME}.framework\"\n\n\n######################\n# Build Frameworks\n######################\n\nxcodebuild -project ${PROJECT_NAME}.xcodeproj -scheme ${PROJECT_NAME} -sdk iphonesimulator -configuration ${CONFIGURATION} clean build CONFIGURATION_BUILD_DIR=${BUILD_DIR}/${CONFIGURATION}-iphonesimulator 2>&1\n\nxcodebuild -project ${PROJECT_NAME}.xcodeproj -scheme ${PROJECT_NAME} -sdk iphoneos -configuration ${CONFIGURATION} clean build CONFIGURATION_BUILD_DIR=${BUILD_DIR}/${CONFIGURATION}-iphoneos 2>&1\n\n######################\n# Create directory for universal\n######################\n\nrm -rf \"${UNIVERSAL_LIBRARY_DIR}\"\n\nmkdir \"${UNIVERSAL_LIBRARY_DIR}\"\n\nmkdir \"${FRAMEWORK}\"\n\n\n######################\n# Copy files Framework\n######################\n\ncp -r \"${DEVICE_LIBRARY_PATH}/.\" \"${FRAMEWORK}\"\n\n\n######################\n# Make an universal binary\n######################\n\nlipo \"${SIMULATOR_LIBRARY_PATH}/${FRAMEWORK_NAME}\" \"${DEVICE_LIBRARY_PATH}/${FRAMEWORK_NAME}\" -create -output \"${FRAMEWORK}/${FRAMEWORK_NAME}\" | echo\n\n# For Swift framework, Swiftmodule needs to be copied in the universal framework\nif [ -d \"${SIMULATOR_LIBRARY_PATH}/Modules/${FRAMEWORK_NAME}.swiftmodule/\" ]; then\ncp -f ${SIMULATOR_LIBRARY_PATH}/Modules/${FRAMEWORK_NAME}.swiftmodule/* \"${FRAMEWORK}/Modules/${FRAMEWORK_NAME}.swiftmodule/\" | echo\n                                                                      fi\n                                                                      \n                                                                      if [ -d \"${DEVICE_LIBRARY_PATH}/Modules/${FRAMEWORK_NAME}.swiftmodule/\" ]; then\n                                                                      cp -f ${DEVICE_LIBRARY_PATH}/Modules/${FRAMEWORK_NAME}.swiftmodule/* \"${FRAMEWORK}/Modules/${FRAMEWORK_NAME}.swiftmodule/\" | echo\n                                                                      fi\n                                                                      \n                                                                      ######################\n                                                                      # On Release, copy the result to release directory\n                                                                      ######################\n                                                                      OUTPUT_DIR=\"${PROJECT_DIR}/Output/${FRAMEWORK_NAME}-${CONFIGURATION}-iphoneuniversal/\"\n                                                                      \n                                                                      rm -rf \"$OUTPUT_DIR\"\n                                                                      mkdir -p \"$OUTPUT_DIR\"\n                                                                      \n                                                                      cp -r \"${FRAMEWORK}\" \"$OUTPUT_DIR\"\n                                                                      \n                                                                      if [ ${REVEAL_ARCHIVE_IN_FINDER} = true ]; then\n                                                                      open \"${OUTPUT_DIR}/\"\n                                                                      fi";
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		E77A6DD81B6A690800070837 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E77A6DEC1B6A695100070837 /* Encoding.swift in Sources */,
+				E77A6DED1B6A695100070837 /* Endpoint.swift in Sources */,
+				E77A6DEB1B6A695100070837 /* Bridge.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		E77A6DE31B6A690800070837 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = NO;
+				SDKROOT = iphoneos;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Debug;
+		};
+		E77A6DE41B6A690800070837 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Release;
+		};
+		E77A6DE61B6A690800070837 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				INFOPLIST_FILE = Bridge/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.zumper..Bridge;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		E77A6DE71B6A690800070837 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				INFOPLIST_FILE = Bridge/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.zumper..Bridge;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+			};
+			name = Release;
+		};
+		E77A6DF01B6A698800070837 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		E77A6DF11B6A698800070837 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		E77A6DD71B6A690800070837 /* Build configuration list for PBXProject "Bridge" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E77A6DE31B6A690800070837 /* Debug */,
+				E77A6DE41B6A690800070837 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		E77A6DE51B6A690800070837 /* Build configuration list for PBXNativeTarget "Bridge" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E77A6DE61B6A690800070837 /* Debug */,
+				E77A6DE71B6A690800070837 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+		E77A6DEF1B6A698800070837 /* Build configuration list for PBXAggregateTarget "Bridge-Universal" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E77A6DF01B6A698800070837 /* Debug */,
+				E77A6DF11B6A698800070837 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = E77A6DD41B6A690800070837 /* Project object */;
+}
