@@ -50,6 +50,10 @@ public class Bridge {
         }
     }
     
+    public func enableDebugLogging() {
+        self.debugMode = true
+    }
+    
     public func execute(endpoint: Endpoint) -> NSURLSessionDataTask {
         let dataTask = requestDataTask(endpoint)
         
