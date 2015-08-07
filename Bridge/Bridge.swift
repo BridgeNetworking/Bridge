@@ -107,7 +107,7 @@ public class Bridge {
                     } else {
                         if self.debugMode {
                             print("Request Completed with response: \(response!)")
-                            print("Serialized Object: \(responseObject)")
+                            print("\(responseObject!)")
                         }
                         dispatch_async(dispatch_get_main_queue(), { () -> Void in
                             endpoint.successBlock?(response: responseObject)
