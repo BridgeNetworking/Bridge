@@ -9,7 +9,7 @@
 import Foundation
 
 public enum Encoding {
-     case JSON
+    case JSON
     
     
     public func encode(mutableRequest: NSMutableURLRequest, parameters: Dictionary<String, AnyObject>?) -> (NSMutableURLRequest, NSError?) {
@@ -31,7 +31,7 @@ public enum Encoding {
                 
                 // Append the leading `?` character for url encoded requests
                 // and drop the trailing `&` from the reduce
-                var queryString = "?" + String(dropLast(flattenedString.characters))
+                let queryString = "?" + String(flattenedString.characters.dropLast())
                 
                 let baseURL = mutableRequest.URL
                 mutableRequest.URL = NSURL(string: queryString, relativeToURL: baseURL)

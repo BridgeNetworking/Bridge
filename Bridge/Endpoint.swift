@@ -17,81 +17,113 @@ public enum HTTPMethod: String {
     case DELETE = "DELETE"
 }
 
-public typealias EndpointSuccess = ((response: AnyObject?) -> ())
-public typealias EndpointFailure = ((error: NSError?) -> ())
+public protocol Parseable {
+    init()
+    func parseResponseObject(responseObject: AnyObject) -> Parseable
+}
 
-public typealias RequestBridgeBlock = ((endpoint: Endpoint, mutableRequest: NSMutableURLRequest) -> ())
-public typealias ResponseBridgeBlock = ((endpoint: Endpoint, response: NSHTTPURLResponse?, inout responseObject: AnyObject?) -> ())
-public typealias EndpointCompletion = ((response: AnyObject?, error: NSError?) -> ())
+// [Car, Car, Car]
 
-public class Endpoint: NSObject, NSCopying {
+extension Array: Parseable {
+    public func parseResponseObject(responseObject: AnyObject) -> Parseable {
+        if let parseableArray = responseObject as? [Parseable] {
+            parseableArray.map({ $0.parseResponseObject(($0 as? AnyObject)!) })
+            return parseableArray
+        }
+        return self //error?
+    }
+}
+
+extension String: Parseable {
+    public func parseResponseObject(responseObject: AnyObject) -> Parseable {
+        if let parsedString = responseObject as? String {
+            return parsedString
+        }
+        return self //error?
+    }
+}
+
+extension Dictionary: Parseable {
+    public func parseResponseObject(responseObject: AnyObject) -> Parseable {
+        return responseObject as! Dictionary<String, AnyObject>
+    }
+}
+
+typealias Dict = Dictionary<String, AnyObject>
+
+public struct Endpoint<ReturnType where ReturnType:Parseable> {
+    
+    typealias EndpointSuccess = ((response: ReturnType) -> ())
+    typealias EndpointFailure = ((error: NSError?) -> ())
+    
+    typealias RequestBridgeBlock = ((endpoint: Endpoint<ReturnType>, mutableRequest: NSMutableURLRequest) -> ())
+    typealias ResponseBridgeBlock = ((endpoint: Endpoint<ReturnType>, response: NSHTTPURLResponse?, responseObject: ReturnType) -> ())
+    
     /// The route or relative path of your endpoint
-    public var route: String
+    var route: String
     
     // The HTTP verb as defined in the `HTTPMethod` enum to access this endpoint with
-    public var method: HTTPMethod
+    var method: HTTPMethod
     
     // Encoding: JSON only for now
-    public var encoding: Encoding = .JSON
+    var encoding: Encoding = .JSON
     
     // The api client which will be making the requests, currently an AFNetworking shared client
     // but can be replaced with any networking interface layer
     // TODO: Make this interface less dependent on AFNetworking
-    public var client: Bridge
+    var client: Bridge
     
     // Parameters for this endpoint when executing
-    public var params: Dictionary<String, AnyObject>?
+    var params: Dictionary<String, AnyObject>?
     
-    // Unique identifier for each endpoint
+    // UUID for each endpoint
     // TODO: Spec if still needed.
-    var identifier = NSUUID().UUIDString
+    var identifier: String?
     
     // User defined properties
     private var properties: Dictionary<String, Any> = [:]
     
     // MARK: Properties for spawned copies
     
-    // Incrementing request ID to identify each request that's executed.
-    // A new endpoint copy is spawned from this endpoint to create a new request
-    // each time this endpoint is executed.
-    public var requestId: Int = 1
-    
     // Completion Closures
-    public private(set) var successBlock: EndpointSuccess?
-    public private(set) var failureBlock: EndpointFailure?
+    private(set) var successBlock: EndpointSuccess?
+    private(set) var failureBlock: EndpointFailure?
     
     // Endpoint Specific Bridges and Bridge exemptions
     var requestBridge: RequestBridgeBlock?
     var responseBridge: ResponseBridgeBlock?
     
     // Meta data for tracking
-    public private(set) var tag: String?
+    private(set) var tag: String?
     
-    public required init(_ route: String, method verb: HTTPMethod, client: Bridge) {
+    init(_ route: String, method verb: HTTPMethod, before: RequestBridgeBlock = { (_,_) in }, after: ResponseBridgeBlock = { (_,_,_) in }, client: Bridge = Bridge.sharedInstance) {
         self.route = route
         self.method = verb
         self.client = client
+        self.requestBridge = before
+        self.responseBridge = after
     }
     
     /**
     Executes the request defined by this endpoint
     
-    - parameter id:      (optional) ID of the resource you wish to access
-    - parameter params:  (optional) dictionary of parameters to pass with this request
-    - parameter success: closure with the code to be executed on success
-    - parameter failure: closure with the code to be executed on failure
+    :param: id      (optional) ID of the resource you wish to access
+    :param: params  (optional) dictionary of parameters to pass with this request
+    :param: success closure with the code to be executed on success
+    :param: failure closure with the code to be executed on failure
     
-    - returns: the `NSURLSessionDataTask` which was executed
+    :returns: the `NSURLSessionDataTask` which was executed
     */
-    public func execute(id: String? = nil, params: Dictionary<String, AnyObject>? = nil, tag: String? = nil, success: EndpointSuccess?, failure: EndpointFailure?) -> NSURLSessionDataTask {
+    func execute(id: String? = nil, params: Dictionary<String, AnyObject>? = nil, tag: String? = nil, success: EndpointSuccess?, failure: EndpointFailure? = nil) -> NSURLSessionDataTask {
         
-        let executionCopy = self.copy() as! Endpoint
+        var executionCopy = self
+        
+        executionCopy.identifier = self.identifier != nil ? self.identifier : NSUUID().UUIDString
         
         executionCopy.successBlock = success
         executionCopy.failureBlock = failure
         
         executionCopy.params = params
-        executionCopy.requestId = nextRequestId()
         executionCopy.tag = tag
         
         if let resourceId = id {
@@ -101,12 +133,12 @@ public class Endpoint: NSObject, NSCopying {
     }
     
     
-    public func attach(property: String, value: Any) -> Self {
+    mutating func attach(property: String, value: Any) -> Endpoint<ReturnType> {
         self.properties[property] = value
         return self
     }
     
-    public subscript(property: String) -> Any? {
+    subscript(property: String) -> Any? {
         get {
             return self.properties[property]
         }
@@ -115,68 +147,17 @@ public class Endpoint: NSObject, NSCopying {
         }
     }
     
-    /**
-    Gets the next availble unique requestID
-    Request ID = 1 belongs to the original endpoint definition
-    
-    - returns: Int representing the request ID of an executed request
-    */
-    func nextRequestId() -> Int {
-        var newRequestId: Int = 0
-        
-        let synchronousQueue = dispatch_queue_create("com.zumper.requestIdQueue", nil)
-        dispatch_sync(synchronousQueue) {
-            newRequestId = self.requestId
-            self.requestId += 1
-        }
-        
-        return newRequestId
-    }
-    
-    
-    /**
-    Endpoint specific request Bridges
-    
-    - parameter requestBlock: block
-    */
-    public func before(requestBlock: RequestBridgeBlock) -> Self {
-        self.requestBridge = requestBlock
-        return self
-    }
-    
-    /**
-    Endpoint specific response Bridges
-    
-    - parameter requestBlock: block
-    */
-    public func after(responseBlock: ResponseBridgeBlock) -> Self {
-        self.responseBridge = responseBlock
-        return self
-    }
-    
     func requestPath() -> String {
         return self.client.baseURL != nil ? self.client.baseURL!.absoluteString + self.route : self.route
     }
-    
-    // NSCopying protocol
-    
-    public func copyWithZone(zone: NSZone) -> AnyObject {
-        let endpointCopy = self.dynamicType.init(self.route, method: self.method, client: self.client)
-        endpointCopy.params = self.params
-        endpointCopy.identifier = self.identifier
-        endpointCopy.properties = self.properties
-        return endpointCopy
-    }
 }
-
 
 // MARK: - Printable
 
 extension Endpoint {
-    override public var description: String {
+    public var description: String {
         get {
-            var desc: String
-            desc = super.description + newLine()
+            var desc: String = ""
             
             desc += method.rawValue + space() + requestPath() + newLine()
             
@@ -204,6 +185,3 @@ extension Endpoint {
     }
 }
 
-extension Endpoint: CustomDebugStringConvertible {
-    
-}

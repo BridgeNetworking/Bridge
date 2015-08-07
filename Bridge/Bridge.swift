@@ -14,7 +14,7 @@ public class Bridge {
     public var tasksByTag: NSMapTable = NSMapTable(keyOptions: NSPointerFunctionsOptions.StrongMemory, valueOptions: NSPointerFunctionsOptions.WeakMemory)
     
     // Debug Settings
-    var debugMode: Bool = false
+    var debugMode: Bool = true
     
     public var baseURL: NSURL?
     
@@ -24,7 +24,7 @@ public class Bridge {
         
         var urlSession = NSURLSession(configuration: sessionConfig)
         return urlSession
-    }()
+        }()
     
     public static let sharedInstance: Bridge = {
         return Bridge()
@@ -54,7 +54,7 @@ public class Bridge {
         self.debugMode = true
     }
     
-    public func execute(endpoint: Endpoint) -> NSURLSessionDataTask {
+    func execute<ReturnType>(endpoint: Endpoint<ReturnType>) -> NSURLSessionDataTask {
         let dataTask = requestDataTask(endpoint)
         
         if debugMode {
@@ -68,8 +68,8 @@ public class Bridge {
         return dataTask
     }
     
-    func requestDataTask(endpoint: Endpoint) -> NSURLSessionDataTask {
-        let mutableRequest = NSMutableURLRequest(URL: NSURL(string: endpoint.route, relativeToURL: self.baseURL)!)
+    func requestDataTask<ReturnType>(endpoint: Endpoint<ReturnType>) -> NSURLSessionDataTask {
+        var mutableRequest = NSMutableURLRequest(URL: NSURL(string: endpoint.route, relativeToURL: self.baseURL)!)
         mutableRequest.HTTPShouldHandleCookies = false
         mutableRequest.HTTPMethod = endpoint.method.rawValue
         
@@ -82,52 +82,51 @@ public class Bridge {
         
         // Get the finished NSMutableURLRequest after parameter encoding
         var request: NSMutableURLRequest = encodingResult.0
-
+        
         // Process all custom serialization through Bridges
-        request = processRequestBridges(endpoint, mutableRequest: request)
+        request = processRequestBridges(endpoint, mutableRequest: &request)
+        
         
         var dataTask: NSURLSessionDataTask
         dataTask = Bridge.sharedInstance.session.dataTaskWithRequest(request, completionHandler: { (data: NSData?, response: NSURLResponse?, err: NSError?) -> Void in
-            if err == nil {
-                var responseObject: AnyObject? = endpoint.encoding.serialize(response!, data: data!).0
-                if self.processResponseBridges(endpoint, response: response as? NSHTTPURLResponse, responseObject: &responseObject, error: err) {
+            let serializedData = endpoint.encoding.serialize(response!, data: data!).0 as! Dictionary<String, AnyObject>
+            if let responseObject: AnyObject = serializedData {
+                let processedResponseObject = ReturnType().parseResponseObject(responseObject) as! ReturnType
+                if self.processResponseBridges(endpoint, response: response as? NSHTTPURLResponse, responseObject: processedResponseObject, error: err) {
                     if err != nil {
-                        var serializedError = err!
-                        if let respDict = responseObject as? Dictionary<String, AnyObject> {
-                            // TODO : implement error
-//                            serializedError = NSError()
-                        }
                         if self.debugMode {
-                            print("Request Failed with error: \(serializedError)")
+                            print("Request Failed with error: \(err)")
                         }
                         dispatch_async(dispatch_get_main_queue(), { () -> Void in
-                            endpoint.failureBlock?(error: serializedError)
+                            endpoint.failureBlock?(error: err)
                         })
-                        
                     } else {
                         if self.debugMode {
                             print("Request Completed with response: \(response!)")
-                            print("\(responseObject!)")
+                            print("\(processedResponseObject)")
                         }
                         dispatch_async(dispatch_get_main_queue(), { () -> Void in
-                            endpoint.successBlock?(response: responseObject)
+                            endpoint.successBlock?(response: processedResponseObject)
                         })
                     }
                 }
+                return
             }
+            
         })
         
         // Set task object to be tracked if a non nil tag is provided
         if let tag = endpoint.tag {
-           self.tasksByTag.setObject(dataTask, forKey: "\(tag)-\(dataTask.taskIdentifier)")
+            self.tasksByTag.setObject(dataTask, forKey: "\(tag)-\(dataTask.taskIdentifier)")
         }
-    
+        
         return dataTask
     }
     
-    func attemptCustomResponseBridges(endpoint: Endpoint, response: NSHTTPURLResponse?, inout responseObject: AnyObject?) -> Bool {
+    
+    func attemptCustomResponseBridges<ReturnType>(endpoint: Endpoint<ReturnType>, response: NSHTTPURLResponse?, responseObject: ReturnType) -> Bool {
         if endpoint.responseBridge != nil {
-            if (endpoint.responseBridge?(endpoint: endpoint, response: response, responseObject: &responseObject) != nil) {
+            if (endpoint.responseBridge?(endpoint: endpoint, response: response, responseObject: responseObject) != nil) {
                 return true
             } else {
                 return false
@@ -137,7 +136,7 @@ public class Bridge {
         }
     }
     
-    func processResponseBridges(endpoint: Endpoint, response: NSHTTPURLResponse?, inout responseObject: AnyObject?, error: NSError?) -> Bool {
+    func processResponseBridges<ReturnType>(endpoint: Endpoint<ReturnType>, response: NSHTTPURLResponse?, responseObject: ReturnType, error: NSError?) -> Bool {
         var continueResponseHandling: Bool
         
         if let err = error {
@@ -148,17 +147,17 @@ public class Bridge {
         }
         
         for Bridge in self.responseBridges {
-            continueResponseHandling = Bridge.process(endpoint, response: response, responseObject: &responseObject)
+            continueResponseHandling = Bridge.process(endpoint, response: response, responseObject: responseObject)
             if !continueResponseHandling {
                 return false
             }
         }
         
         // Finally check and execute custom endpoint Bridges if any are attached
-        return attemptCustomResponseBridges(endpoint, response: response, responseObject: &responseObject)
+        return attemptCustomResponseBridges(endpoint, response: response, responseObject: responseObject)
     }
     
-    func processRequestBridges(endpoint: Endpoint, mutableRequest: NSMutableURLRequest) -> NSMutableURLRequest {
+    func processRequestBridges<ReturnType>(endpoint: Endpoint<ReturnType>, inout mutableRequest: NSMutableURLRequest) -> NSMutableURLRequest {
         var processedRequest: NSMutableURLRequest = mutableRequest.mutableCopy() as! NSMutableURLRequest
         for Bridge in self.requestBridges {
             Bridge.process(endpoint, mutableRequest: &processedRequest)
@@ -167,57 +166,18 @@ public class Bridge {
     }
 }
 
-public class GET: Endpoint {
-    public init(_ route: String) {
-        super.init(route, method: .GET, client: Bridge.sharedInstance)
-    }
-    
-    required public init(_ route: String, method verb: HTTPMethod, client: Bridge) {
-        super.init(route, method: .GET, client: Bridge.sharedInstance)
-    }
-}
-
-public class POST: Endpoint {
-    public init(_ route: String) {
-        super.init(route, method: .POST, client: Bridge.sharedInstance)
-    }
-    
-    required public init(_ route: String, method verb: HTTPMethod, client: Bridge) {
-        super.init(route, method: .POST, client: Bridge.sharedInstance)
-    }
-}
-
-public class PUT: Endpoint {
-    public init(_ route: String) {
-        super.init(route, method: .PUT, client: Bridge.sharedInstance)
-    }
-    
-    required public init(_ route: String, method verb: HTTPMethod, client: Bridge) {
-        super.init(route, method: .PUT, client: Bridge.sharedInstance)
-    }
-}
-
-public class DELETE: Endpoint {
-    public init(_ route: String) {
-        super.init(route, method: .DELETE, client: Bridge.sharedInstance)
-    }
-    
-    required public init(_ route: String, method verb: HTTPMethod, client: Bridge) {
-        super.init(route, method: .DELETE, client: Bridge.sharedInstance)
-    }
-}
 
 
 // MARK - Bridges
 
-public typealias EndpointIdentifier = String
+typealias EndpointIdentifier = String
 
 /**
 *  Conform to the `RequestBridge` protocol for any Bridge that
 *  needs to work with or alter a request before it's sent over the wire
 */
 public protocol RequestBridge {
-     func process(endpoint: Endpoint, inout mutableRequest: NSMutableURLRequest)
+    func process<ReturnType>(endpoint: Endpoint<ReturnType>, inout mutableRequest: NSMutableURLRequest)
 }
 
 /**
@@ -227,5 +187,7 @@ public protocol RequestBridge {
 *  be modified or replaced.
 */
 public protocol ResponseBridge {
-    func process(endpoint: Endpoint, response: NSHTTPURLResponse?, inout responseObject: AnyObject?) -> Bool
+    func process<ReturnType>(endpoint: Endpoint<ReturnType>, response: NSHTTPURLResponse?, responseObject: ReturnType) -> Bool
 }
+
+
