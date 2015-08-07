@@ -31,7 +31,7 @@ public enum Encoding {
                 
                 // Append the leading `?` character for url encoded requests
                 // and drop the trailing `&` from the reduce
-                var queryString = "?" + String(dropLast(flattenedString.characters))
+                let queryString = "?" + String(dropLast(flattenedString.characters))
                 
                 let baseURL = mutableRequest.URL
                 mutableRequest.URL = NSURL(string: queryString, relativeToURL: baseURL)
@@ -55,21 +55,6 @@ public enum Encoding {
         }
         
         return (mutableRequest, nil)
-    }
-    
-    public func serialize(response: NSURLResponse, data: NSData) -> (AnyObject?, NSError?) {
-        switch self {
-        case .JSON:
-            var error: NSError?
-            let serializedObject: AnyObject?
-            do {
-                serializedObject = try NSJSONSerialization.JSONObjectWithData(data, options: .AllowFragments)
-            } catch let error1 as NSError {
-                error = error1
-                serializedObject = nil
-            }
-            return (serializedObject, error)
-        }
     }
     
     func escapeString(string: String) -> String {
