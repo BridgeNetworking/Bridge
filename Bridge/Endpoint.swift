@@ -53,28 +53,28 @@ typealias Dict = Dictionary<String, AnyObject>
 
 public struct Endpoint<ReturnType where ReturnType:Parseable> {
     
-    typealias EndpointSuccess = ((response: ReturnType) -> ())
-    typealias EndpointFailure = ((error: NSError?) -> ())
+    public typealias EndpointSuccess = ((response: ReturnType) -> ())
+    public typealias EndpointFailure = ((error: NSError?) -> ())
     
-    typealias RequestBridgeBlock = ((endpoint: Endpoint<ReturnType>, mutableRequest: NSMutableURLRequest) -> ())
-    typealias ResponseBridgeBlock = ((endpoint: Endpoint<ReturnType>, response: NSHTTPURLResponse?, responseObject: ReturnType) -> ())
+    public typealias RequestBridgeBlock = ((endpoint: Endpoint<ReturnType>, mutableRequest: NSMutableURLRequest) -> ())
+    public typealias ResponseBridgeBlock = ((endpoint: Endpoint<ReturnType>, response: NSHTTPURLResponse?, responseObject: ReturnType) -> ())
     
     /// The route or relative path of your endpoint
-    var route: String
+    public var route: String
     
     // The HTTP verb as defined in the `HTTPMethod` enum to access this endpoint with
-    var method: HTTPMethod
+    public var method: HTTPMethod
     
     // Encoding: JSON only for now
-    var encoding: Encoding = .JSON
+    public var encoding: Encoding = .JSON
     
     // The api client which will be making the requests, currently an AFNetworking shared client
     // but can be replaced with any networking interface layer
     // TODO: Make this interface less dependent on AFNetworking
-    var client: Bridge
+    public var client: Bridge
     
     // Parameters for this endpoint when executing
-    var params: Dictionary<String, AnyObject>?
+    public var params: Dictionary<String, AnyObject>?
     
     // UUID for each endpoint
     // TODO: Spec if still needed.
@@ -86,17 +86,17 @@ public struct Endpoint<ReturnType where ReturnType:Parseable> {
     // MARK: Properties for spawned copies
     
     // Completion Closures
-    private(set) var successBlock: EndpointSuccess?
-    private(set) var failureBlock: EndpointFailure?
+    public private(set) var successBlock: EndpointSuccess?
+    public private(set) var failureBlock: EndpointFailure?
     
     // Endpoint Specific Bridges and Bridge exemptions
     var requestBridge: RequestBridgeBlock?
     var responseBridge: ResponseBridgeBlock?
     
     // Meta data for tracking
-    private(set) var tag: String?
+    public private(set) var tag: String?
     
-    init(_ route: String, method verb: HTTPMethod, before: RequestBridgeBlock = { (_,_) in }, after: ResponseBridgeBlock = { (_,_,_) in }, client: Bridge = Bridge.sharedInstance) {
+    public init(_ route: String, method verb: HTTPMethod, before: RequestBridgeBlock = { (_,_) in }, after: ResponseBridgeBlock = { (_,_,_) in }, client: Bridge = Bridge.sharedInstance) {
         self.route = route
         self.method = verb
         self.client = client
@@ -114,7 +114,7 @@ public struct Endpoint<ReturnType where ReturnType:Parseable> {
     
     :returns: the `NSURLSessionDataTask` which was executed
     */
-    func execute(id: String? = nil, params: Dictionary<String, AnyObject>? = nil, tag: String? = nil, success: EndpointSuccess?, failure: EndpointFailure? = nil) -> NSURLSessionDataTask {
+    public func execute(id: String? = nil, params: Dictionary<String, AnyObject>? = nil, tag: String? = nil, success: EndpointSuccess?, failure: EndpointFailure? = nil) -> NSURLSessionDataTask {
         
         var executionCopy = self
         
@@ -133,12 +133,12 @@ public struct Endpoint<ReturnType where ReturnType:Parseable> {
     }
     
     
-    mutating func attach(property: String, value: Any) -> Endpoint<ReturnType> {
+    public mutating func attach(property: String, value: Any) -> Endpoint<ReturnType> {
         self.properties[property] = value
         return self
     }
     
-    subscript(property: String) -> Any? {
+    public subscript(property: String) -> Any? {
         get {
             return self.properties[property]
         }
@@ -147,7 +147,7 @@ public struct Endpoint<ReturnType where ReturnType:Parseable> {
         }
     }
     
-    func requestPath() -> String {
+    public func requestPath() -> String {
         return self.client.baseURL != nil ? self.client.baseURL!.absoluteString + self.route : self.route
     }
 }
