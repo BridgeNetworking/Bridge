@@ -77,8 +77,7 @@ public struct Endpoint<ReturnType where ReturnType:Parseable> {
     public var params: Dictionary<String, AnyObject>?
     
     // UUID for each endpoint
-    // TODO: Spec if still needed.
-    var identifier: String?
+    public var identifier = NSUUID().UUIDString
     
     // User defined properties
     private var properties: Dictionary<String, Any> = [:]
