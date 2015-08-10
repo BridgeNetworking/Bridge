@@ -2,7 +2,7 @@
 Simple HTTP Networking
 
 ```
-var endpoint = GET("https://api.github.com/zen")
+var endpoint = GET<Dict>("https://api.github.com/users/whatever")
 endpoint.execute(success: { (response) in
     print(response)
 })
@@ -12,8 +12,7 @@ endpoint.execute(success: { (response) in
 ### TODO
 - [ ] Documentation
 - [ ] Error handling
-- [ ] Generic Branch
-- [ ] Chaining response > requests
+- [x] Generics Branch
 
 ### Requirements
  - iOS 8.0+
