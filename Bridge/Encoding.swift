@@ -57,7 +57,7 @@ public enum Encoding {
         return (mutableRequest, nil)
     }
     
-    public func serialize(response: NSURLResponse, data: NSData) -> (AnyObject?, NSError?) {
+    func serialize(data: NSData) -> (ResponseObject?, NSError?) {
         switch self {
         case .JSON:
             var error: NSError?
@@ -67,9 +67,15 @@ public enum Encoding {
             } catch let error1 as NSError {
                 error = error1
                 serializedObject = nil
+                return (nil, error)
             }
-            return (serializedObject, error)
+            if let object = serializedObject as? Array<AnyObject> {
+                return (ResponseObject.JSONArray(object), error)
+            } else if let object = serializedObject as? Dict {
+                return (ResponseObject.JSONDict(object), error)
+            }
         }
+        return (nil, nil)
     }
     
     func escapeString(string: String) -> String {
@@ -77,5 +83,19 @@ public enum Encoding {
         let customAllowedSet =  NSCharacterSet(charactersInString: allowedDelimiters).invertedSet
         let escapedString = string.stringByAddingPercentEncodingWithAllowedCharacters(customAllowedSet)
         return escapedString!
+    }
+}
+
+public enum ResponseObject {
+    case JSONArray(Array<AnyObject>)
+    case JSONDict(Dict)
+    
+    public func rawValue() -> AnyObject {
+        switch self {
+        case .JSONArray(let arrayValue):
+            return arrayValue
+        case .JSONDict(let dictionaryValue):
+            return dictionaryValue
+        }
     }
 }

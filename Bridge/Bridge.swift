@@ -89,10 +89,9 @@ public class Bridge {
         
         var dataTask: NSURLSessionDataTask
         dataTask = Bridge.sharedInstance.session.dataTaskWithRequest(request, completionHandler: { (data: NSData?, response: NSURLResponse?, err: NSError?) -> Void in
-            let serializedData = endpoint.encoding.serialize(response!, data: data!).0 as! Dict
-            if let responseObject: AnyObject = serializedData {
-                let processedResponseObject = ReturnType().parseResponseObject(responseObject) as! ReturnType
-                if self.processResponseBridges(endpoint, response: response as? NSHTTPURLResponse, responseObject: serializedData, error: err) {
+            if let responseObject = endpoint.encoding.serialize(data!).0 {
+                let serializedObject = ReturnType().parseResponseObject(responseObject.rawValue()) as! ReturnType
+                if self.processResponseBridges(endpoint, response: response as? NSHTTPURLResponse, responseObject: responseObject, error: err) {
                     if err != nil {
                         if self.debugMode {
                             print("Request Failed with error: \(err)")
@@ -103,10 +102,10 @@ public class Bridge {
                     } else {
                         if self.debugMode {
                             print("Request Completed with response: \(response!)")
-                            print("\(processedResponseObject)")
+                            print("\(serializedObject)")
                         }
                         dispatch_async(dispatch_get_main_queue(), { () -> Void in
-                            endpoint.successBlock?(response: processedResponseObject)
+                            endpoint.successBlock?(response: serializedObject)
                         })
                     }
                 }
@@ -124,7 +123,7 @@ public class Bridge {
     }
     
     
-    func attemptCustomResponseBridges<ReturnType>(endpoint: Endpoint<ReturnType>, response: NSHTTPURLResponse?, responseObject: Dict) -> Bool {
+    func attemptCustomResponseBridges<ReturnType>(endpoint: Endpoint<ReturnType>, response: NSHTTPURLResponse?, responseObject: ResponseObject) -> Bool {
         if endpoint.responseBridge != nil {
             if (endpoint.responseBridge?(endpoint: endpoint, response: response, responseObject: responseObject) != nil) {
                 return true
@@ -136,7 +135,7 @@ public class Bridge {
         }
     }
     
-    func processResponseBridges<ReturnType>(endpoint: Endpoint<ReturnType>, response: NSHTTPURLResponse?, responseObject: Dict, error: NSError?) -> Bool {
+    func processResponseBridges<ReturnType>(endpoint: Endpoint<ReturnType>, response: NSHTTPURLResponse?, responseObject: ResponseObject, error: NSError?) -> Bool {
         var continueResponseHandling: Bool
         
         if let err = error {
@@ -187,7 +186,7 @@ public protocol RequestBridge {
 *  be modified or replaced.
 */
 public protocol ResponseBridge {
-    func process<ReturnType>(endpoint: Endpoint<ReturnType>, response: NSHTTPURLResponse?, responseObject: Dict) -> Bool
+    func process<ReturnType>(endpoint: Endpoint<ReturnType>, response: NSHTTPURLResponse?, responseObject: ResponseObject) -> Bool
 }
 
 

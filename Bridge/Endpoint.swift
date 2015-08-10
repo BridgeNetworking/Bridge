@@ -57,7 +57,7 @@ public struct Endpoint<ReturnType where ReturnType:Parseable> {
     public typealias EndpointFailure = ((error: NSError?) -> ())
     
     public typealias RequestBridgeBlock = ((endpoint: Endpoint<ReturnType>, mutableRequest: NSMutableURLRequest) -> ())
-    public typealias ResponseBridgeBlock = ((endpoint: Endpoint<ReturnType>, response: NSHTTPURLResponse?, responseObject: Dict) -> ())
+    public typealias ResponseBridgeBlock = ((endpoint: Endpoint<ReturnType>, response: NSHTTPURLResponse?, responseObject: ResponseObject) -> ())
     
     /// The route or relative path of your endpoint
     public var route: String

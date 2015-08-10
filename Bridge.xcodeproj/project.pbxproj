@@ -21,7 +21,6 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
-		E77A6DE11B6A690800070837 /* Bridge.h in Headers */ = {isa = PBXBuildFile; fileRef = E77A6DE01B6A690800070837 /* Bridge.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E77A6DEB1B6A695100070837 /* Bridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = E77A6DE81B6A695100070837 /* Bridge.swift */; };
 		E77A6DEC1B6A695100070837 /* Encoding.swift in Sources */ = {isa = PBXBuildFile; fileRef = E77A6DE91B6A695100070837 /* Encoding.swift */; };
 		E77A6DED1B6A695100070837 /* Endpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = E77A6DEA1B6A695100070837 /* Endpoint.swift */; };
@@ -29,7 +28,6 @@
 
 /* Begin PBXFileReference section */
 		E77A6DDD1B6A690800070837 /* Bridge.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Bridge.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		E77A6DE01B6A690800070837 /* Bridge.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Bridge.h; sourceTree = "<group>"; };
 		E77A6DE21B6A690800070837 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		E77A6DE81B6A695100070837 /* Bridge.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Bridge.swift; sourceTree = "<group>"; };
 		E77A6DE91B6A695100070837 /* Encoding.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Encoding.swift; sourceTree = "<group>"; };
@@ -69,7 +67,6 @@
 				E77A6DE81B6A695100070837 /* Bridge.swift */,
 				E77A6DE91B6A695100070837 /* Encoding.swift */,
 				E77A6DEA1B6A695100070837 /* Endpoint.swift */,
-				E77A6DE01B6A690800070837 /* Bridge.h */,
 				E77A6DE21B6A690800070837 /* Info.plist */,
 			);
 			path = Bridge;
@@ -82,7 +79,6 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E77A6DE11B6A690800070837 /* Bridge.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -340,6 +336,7 @@
 				E77A6DE71B6A690800070837 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		E77A6DEF1B6A698800070837 /* Build configuration list for PBXAggregateTarget "Bridge-Universal" */ = {
 			isa = XCConfigurationList;
@@ -348,6 +345,7 @@
 				E77A6DF11B6A698800070837 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
