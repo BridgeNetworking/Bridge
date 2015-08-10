@@ -49,7 +49,7 @@ extension Dictionary: Parseable {
     }
 }
 
-typealias Dict = Dictionary<String, AnyObject>
+public typealias Dict = Dictionary<String, AnyObject>
 
 public struct Endpoint<ReturnType where ReturnType:Parseable> {
     
@@ -57,7 +57,7 @@ public struct Endpoint<ReturnType where ReturnType:Parseable> {
     public typealias EndpointFailure = ((error: NSError?) -> ())
     
     public typealias RequestBridgeBlock = ((endpoint: Endpoint<ReturnType>, mutableRequest: NSMutableURLRequest) -> ())
-    public typealias ResponseBridgeBlock = ((endpoint: Endpoint<ReturnType>, response: NSHTTPURLResponse?, responseObject: ReturnType) -> ())
+    public typealias ResponseBridgeBlock = ((endpoint: Endpoint<ReturnType>, response: NSHTTPURLResponse?, responseObject: Dict) -> ())
     
     /// The route or relative path of your endpoint
     public var route: String
