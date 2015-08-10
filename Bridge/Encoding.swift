@@ -98,4 +98,14 @@ public enum ResponseObject {
             return dictionaryValue
         }
     }
+    
+    public subscript(key: String) -> AnyObject? {
+        switch self {
+        case .JSONDict(let dictionaryValue):
+            return dictionaryValue[key]
+        default:
+            return nil
+        }
+    }
+
 }
