@@ -37,13 +37,11 @@ public protocol ResponseBridge {
 }
 
 ```
-
 Examples:
 - [Retry]() (Retries requests on response if not 2xx code)
 - [Model Cache]() (Caches objects on response)
 - [Method Tunneling]() (Changes the HTTP Verb)
 
-```
 
 ## Object Serialization
 Bridge is implemented using generics which allow you to serialize to objects as long as your objects conform to the `Parseable` protocol.
