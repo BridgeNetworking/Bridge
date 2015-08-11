@@ -19,7 +19,7 @@ public enum HTTPMethod: String {
 
 public protocol Parseable {
     init()
-    func parseResponseObject(responseObject: AnyObject) -> AnyObject
+    static func parseResponseObject(responseObject: AnyObject) -> AnyObject
 }
 
 extension Array : Parseable {

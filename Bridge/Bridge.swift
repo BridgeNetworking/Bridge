@@ -90,7 +90,7 @@ public class Bridge {
         var dataTask: NSURLSessionDataTask
         dataTask = Bridge.sharedInstance.session.dataTaskWithRequest(request, completionHandler: { (data: NSData?, response: NSURLResponse?, err: NSError?) -> Void in
             if let responseObject = endpoint.encoding.serialize(data!).0 {
-                let serializedObject = ReturnType().parseResponseObject(responseObject.rawValue()) as! ReturnType
+                let serializedObject = ReturnType.parseResponseObject(responseObject.rawValue()) as! ReturnType
                 if self.processResponseBridges(endpoint, response: response as? NSHTTPURLResponse, responseObject: responseObject, error: err) {
                     if err != nil {
                         if self.debugMode {
