@@ -23,43 +23,34 @@ public protocol Parseable {
 }
 
 extension Array : Parseable {
-    public func parseResponseObject(responseObject: AnyObject) -> AnyObject {
-        
-        // Cut the Array<X> out of the dynamicType so that we're left with X
-        let cutString = String("\(self.dynamicType)".stringByReplacingOccurrencesOfString("Array<", withString: "").characters.dropLast())
-        
-        // Create an instance of this type
-        let cutType: AnyClass = NSClassFromString(cutString)!
-        let referenceType = cutType as! Parseable.Type
-        let referenceObject = referenceType.init()
-        
-        // Now we can use this type to parse the individual array components
-        if let responseArray = responseObject as? Array<AnyObject> {
-            let response = responseArray.map({ referenceObject.parseResponseObject($0)}).map({ $0 })
-            return response
-        } else {
-            
-            // Return the object as given, probably should be with an error. (TODO)
-            return responseObject
+    public static func parseResponseObject(responseObject: AnyObject) -> AnyObject {
+        if let referenceType = self.Element.self as? Parseable.Type {
+            if let responseArray = responseObject as? Array<AnyObject> {
+                let response = responseArray.map({ referenceType.parseResponseObject($0)}).map({ $0 })
+                return response
+            }
         }
+        return Array<AnyObject>() // TODO : implement error handling
     }
 }
 
 extension String: Parseable {
-    public func parseResponseObject(responseObject: AnyObject) -> AnyObject {
-        if let parsedString = responseObject as? String {
-            return parsedString
+    public static func parseResponseObject(responseObject: AnyObject) -> AnyObject {
+        if let resp = responseObject as? String {
+            return resp
         }
-        return self //error?
+        return "" // TODO : implement error handling
     }
 }
 
 extension Dictionary: Parseable {
-    public func parseResponseObject(responseObject: AnyObject) -> AnyObject {
-        return responseObject as! Dictionary<String, AnyObject>
+    public static func parseResponseObject(responseObject: AnyObject) -> AnyObject {
+        if let resp = responseObject as? Dictionary<String, AnyObject> {
+            return resp
+        }
+        return Dictionary<String, AnyObject>() // TODO : implement error handling
     }
 }
-
 
 public typealias Dict = Dictionary<String, AnyObject>
 
