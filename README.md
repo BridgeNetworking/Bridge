@@ -4,6 +4,8 @@ Simple Typed JSON HTTP Networking in Swift 2.0
 ## TODO
 - [ ] Documentation
 - [ ] Error handling
+- [ ] More Encoding Types (URL, Plist, XML)
+- [ ] Multi-part form data
 
 ```
 var endpoint = GET<GithubUser>("https://api.github.com/users/whatever")
@@ -129,6 +131,29 @@ extension MTLModel: Parseable {
 @end
 
 ```
+
+Once models are setup, making calls are as simple as:
+```
+let endpoint = Endpoint<GithubUser>("https://api.github.com/users/whatever", method: .GET)
+endpoint.execute(success: { (user: GithubUser) in
+    print(user)
+})
+
+let endpoint = Endpoint<[GithubUser]>("https://api.github.com/users", method: .GET)
+endpoint.execute(success: { (users: Array<GithubUser>) in
+    print(users)
+}, failure: { (error: NSError?) in
+    print(error)
+})
+```
+
+## Advanced Features
+
+#### Cancellation by Tag
+
+#### Additional HTTP headers
+
+#### Endpoint Specific Bridges
 
 ## Requirements
  - iOS 8.0+

@@ -18,19 +18,19 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
         // Override point for customization after application launch.
         
-//        let endpoint = Endpoint<GithubUser>("https://api.github.com/users/whatever", method: .GET)
-//        endpoint.execute(success: { (response) in
-//                print(response)
-//            }, failure: { (error: NSError?) in
-//                print(error)
-//            })
+        let endpoint = Endpoint<GithubUser>("https://api.github.com/users/whatever", method: .GET)
+        endpoint.execute(success: { (response) in
+                print(response)
+            }, failure: { (error: NSError?) in
+                print(error)
+            })
         
-//        let endpoint = Endpoint<Array<GithubUser>>("https://api.github.com/users", method: .GET)
-//        endpoint.execute(success: { (response) in
-//            print(response)
-//            }, failure: { (error: NSError?) in
-//                print(error)
-//        })
+        let endpoint = Endpoint<Array<GithubUser>>("https://api.github.com/users", method: .GET)
+        endpoint.execute(success: { (response) in
+            print(response)
+            }, failure: { (error: NSError?) in
+                print(error)
+        })
         return true
     }
 
