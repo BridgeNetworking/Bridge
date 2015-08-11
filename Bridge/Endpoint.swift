@@ -19,23 +19,34 @@ public enum HTTPMethod: String {
 
 public protocol Parseable {
     init()
-    func parseResponseObject(responseObject: AnyObject) -> Parseable
+    func parseResponseObject(responseObject: AnyObject) -> AnyObject
 }
 
-// [Car, Car, Car]
-
-extension Array: Parseable {
-    public func parseResponseObject(responseObject: AnyObject) -> Parseable {
-        if let parseableArray = responseObject as? [Parseable] {
-            parseableArray.map({ $0.parseResponseObject(($0 as? AnyObject)!) })
-            return parseableArray
+extension Array : Parseable {
+    public func parseResponseObject(responseObject: AnyObject) -> AnyObject {
+        
+        // Cut the Array<X> out of the dynamicType so that we're left with X
+        let cutString = String("\(self.dynamicType)".stringByReplacingOccurrencesOfString("Array<", withString: "").characters.dropLast())
+        
+        // Create an instance of this type
+        let cutType: AnyClass = NSClassFromString(cutString)!
+        let referenceType = cutType as! Parseable.Type
+        let referenceObject = referenceType.init()
+        
+        // Now we can use this type to parse the individual array components
+        if let responseArray = responseObject as? Array<AnyObject> {
+            let response = responseArray.map({ referenceObject.parseResponseObject($0)}).map({ $0 })
+            return response
+        } else {
+            
+            // Return the object as given, probably should be with an error. (TODO)
+            return responseObject
         }
-        return self //error?
     }
 }
 
 extension String: Parseable {
-    public func parseResponseObject(responseObject: AnyObject) -> Parseable {
+    public func parseResponseObject(responseObject: AnyObject) -> AnyObject {
         if let parsedString = responseObject as? String {
             return parsedString
         }
@@ -44,10 +55,11 @@ extension String: Parseable {
 }
 
 extension Dictionary: Parseable {
-    public func parseResponseObject(responseObject: AnyObject) -> Parseable {
+    public func parseResponseObject(responseObject: AnyObject) -> AnyObject {
         return responseObject as! Dictionary<String, AnyObject>
     }
 }
+
 
 public typealias Dict = Dictionary<String, AnyObject>
 
