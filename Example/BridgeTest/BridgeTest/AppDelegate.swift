@@ -14,23 +14,31 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
 
-
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
         // Override point for customization after application launch.
+
+//        let endpoint = Endpoint<GithubUser>("https://api.github.com/users/johnny-zumper", method: .GET)
+//        endpoint.execute(
+//            tag: ":user",
+//            success: { (response) in
+//                print(response)
+//            },
+//            failure: { (errorType, data, request, response, responseObject) in
+//                print("errorType: \(errorType) \ndata:\(data) \nrequest:\(request) \nresponse:\(response) \nresponseObjectt:\(responseObject)")
+//        })
+//        Bridge.sharedInstance.cancelWithTag(":user")
         
-        let endpoint = Endpoint<GithubUser>("https://api.github.com/users/whatever", method: .GET)
-        endpoint.execute(success: { (response) in
+        let listEndpoint = Endpoint<Array<GithubUser>>("https://api.github.com/users", method: .GET)
+        listEndpoint.execute(
+            tag: ":users",
+            success: { (response) in
                 print(response)
-            }, failure: { (error: NSError?) in
-                print(error)
-            })
-        
-        let endpoint = Endpoint<Array<GithubUser>>("https://api.github.com/users", method: .GET)
-        endpoint.execute(success: { (response) in
-            print(response)
-            }, failure: { (error: NSError?) in
-                print(error)
+            },
+            failure: { (errorType, data, request, response, responseObject) in
+                print("errorType: \(errorType) \ndata:\(data) \nrequest:\(request) \nresponse:\(response) \nresponseObjectt:\(responseObject)")
         })
+        Bridge.sharedInstance.cancelWithTag(":users")
+
         return true
     }
 
@@ -60,21 +68,21 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 extension MTLModel: Parseable {
     
-    public static func parseResponseObject(responseObject: AnyObject) -> AnyObject {
+    public static func parseResponseObject(responseObject: AnyObject) throws -> AnyObject {
         if let JSON = responseObject as? Array<AnyObject> {
             do {
                 return try MTLJSONAdapter.modelsOfClass(self, fromJSONArray: JSON) as! [MTLModel]
             } catch {
-                print(error)
+                throw BridgeErrorType.Parsing
             }
         } else if let JSON = responseObject as? Dictionary<NSObject, AnyObject> {
             do {
                 return try MTLJSONAdapter.modelOfClass(self, fromJSONDictionary: JSON) as! MTLModel
             } catch {
-                print(error)
+                throw BridgeErrorType.Parsing
             }
         }
-        return responseObject
+        throw BridgeErrorType.Parsing
     }
 }
 

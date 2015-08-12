@@ -69,15 +69,16 @@ public class Bridge {
     }
     
     func requestDataTask<ReturnType>(endpoint: Endpoint<ReturnType>) -> NSURLSessionDataTask {
-        var mutableRequest = NSMutableURLRequest(URL: NSURL(string: endpoint.route, relativeToURL: self.baseURL)!)
+        let mutableRequest = NSMutableURLRequest(URL: NSURL(string: endpoint.route, relativeToURL: self.baseURL)!)
         mutableRequest.HTTPShouldHandleCookies = false
         mutableRequest.HTTPMethod = endpoint.method.rawValue
         
         let encodingResult: (NSMutableURLRequest, NSError?) = endpoint.encoding.encode(mutableRequest, parameters: endpoint.params)
         
         // If there's an error, just return the data task with a failure
-        if let error = encodingResult.1 {
-            endpoint.failureBlock?(error: error);
+        if let _ = encodingResult.1 {
+            let request = mutableRequest.copy() as! NSURLRequest
+            endpoint.failureBlock?(errorType: BridgeErrorType.Internal, data: nil, request: request, response: nil, responseObject: nil)
         }
         
         // Get the finished NSMutableURLRequest after parameter encoding
@@ -86,32 +87,58 @@ public class Bridge {
         // Process all custom serialization through Bridges
         request = processRequestBridges(endpoint, mutableRequest: &request)
         
-        
         var dataTask: NSURLSessionDataTask
         dataTask = Bridge.sharedInstance.session.dataTaskWithRequest(request, completionHandler: { (data: NSData?, response: NSURLResponse?, err: NSError?) -> Void in
-            if let responseObject = endpoint.encoding.serialize(data!).0 {
-                let serializedObject = ReturnType.parseResponseObject(responseObject.rawValue()) as! ReturnType
-                if self.processResponseBridges(endpoint, response: response as? NSHTTPURLResponse, responseObject: responseObject, error: err) {
-                    if err != nil {
-                        if self.debugMode {
-                            print("Request Failed with error: \(err)")
+            
+            var errorTypeForFailureBlock: ErrorType = BridgeErrorType.Parsing
+            var responseObject: ResponseObject?
+            if let error = err {
+                if (error.domain == NSURLErrorDomain && error.code == NSURLErrorCancelled) {
+                    errorTypeForFailureBlock = BridgeErrorType.Cancelled
+                } else {
+                    errorTypeForFailureBlock = BridgeErrorType.Internal
+                }
+            } else {
+                if let dat = data {
+                    if endpoint.encoding.serialize(dat).0 != nil {
+                        responseObject = endpoint.encoding.serialize(dat).0!
+                        let processResults = self.processResponseBridges(endpoint, response: response as? NSHTTPURLResponse, responseObject: responseObject!)
+                        if let errorFromResults = processResults.bridgeError {
+                            errorTypeForFailureBlock = errorFromResults
+                        } else if !processResults.shouldContinue {
+                           return // If at this point we still don't want to continue just return
+                        } else {
+                            do {
+                                if let serializedObject = try ReturnType.parseResponseObject(responseObject!.rawValue()) as? ReturnType {
+                                    if self.debugMode {
+                                        print("Request Completed with response: \(response!)")
+                                        print("\(serializedObject)")
+                                    }
+                                    dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                                        endpoint.successBlock?(response: serializedObject)
+                                    })
+                                    return
+                                } else {
+                                    errorTypeForFailureBlock = BridgeErrorType.Parsing
+                                }
+                            } catch let error {
+                                errorTypeForFailureBlock = error
+                            }
                         }
-                        dispatch_async(dispatch_get_main_queue(), { () -> Void in
-                            endpoint.failureBlock?(error: err)
-                        })
-                    } else {
-                        if self.debugMode {
-                            print("Request Completed with response: \(response!)")
-                            print("\(serializedObject)")
-                        }
-                        dispatch_async(dispatch_get_main_queue(), { () -> Void in
-                            endpoint.successBlock?(response: serializedObject)
-                        })
                     }
                 }
-                return
             }
             
+            // handle failure block with serialization error and return
+            if self.debugMode {
+                print("Request Failed with errorType: \(errorTypeForFailureBlock)")
+            }
+            dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                let request = mutableRequest.copy() as! NSURLRequest
+                let respObj = responseObject?.rawValue()
+                endpoint.failureBlock?(errorType: errorTypeForFailureBlock, data: data, request: request, response: response, responseObject: respObj)
+            })
+            return
         })
         
         // Set task object to be tracked if a non nil tag is provided
@@ -123,37 +150,25 @@ public class Bridge {
     }
     
     
-    func attemptCustomResponseBridges<ReturnType>(endpoint: Endpoint<ReturnType>, response: NSHTTPURLResponse?, responseObject: ResponseObject) -> Bool {
-        if endpoint.responseBridge != nil {
-            if (endpoint.responseBridge?(endpoint: endpoint, response: response, responseObject: responseObject) != nil) {
-                return true
-            } else {
-                return false
-            }
+    func attemptCustomResponseBridge<ReturnType>(endpoint: Endpoint<ReturnType>, response: NSHTTPURLResponse?, responseObject: ResponseObject) -> ProcessResults {
+        if let after = endpoint.responseBridge {
+            return after(endpoint: endpoint, response: response, responseObject: responseObject)
         } else {
-            return true
+            return ProcessResults(true, nil)
         }
     }
     
-    func processResponseBridges<ReturnType>(endpoint: Endpoint<ReturnType>, response: NSHTTPURLResponse?, responseObject: ResponseObject, error: NSError?) -> Bool {
-        var continueResponseHandling: Bool
-        
-        if let err = error {
-            if (err.domain == NSURLErrorDomain && err.code != NSURLErrorCancelled) {
-                // request was cancelled so don't try process any Bridges
-                return true
-            }
-        }
-        
+    func processResponseBridges<ReturnType>(endpoint: Endpoint<ReturnType>, response: NSHTTPURLResponse?, responseObject: ResponseObject) -> ProcessResults {
         for Bridge in self.responseBridges {
-            continueResponseHandling = Bridge.process(endpoint, response: response, responseObject: responseObject)
-            if !continueResponseHandling {
-                return false
+            let processResults = Bridge.process(endpoint, response: response, responseObject: responseObject)
+            let shouldContinueProcessing = (processResults.bridgeError != nil || !processResults.shouldContinue)
+            if !shouldContinueProcessing {
+                return processResults
             }
         }
         
         // Finally check and execute custom endpoint Bridges if any are attached
-        return attemptCustomResponseBridges(endpoint, response: response, responseObject: responseObject)
+        return attemptCustomResponseBridge(endpoint, response: response, responseObject: responseObject)
     }
     
     func processRequestBridges<ReturnType>(endpoint: Endpoint<ReturnType>, inout mutableRequest: NSMutableURLRequest) -> NSMutableURLRequest {
@@ -164,8 +179,6 @@ public class Bridge {
         return processedRequest
     }
 }
-
-
 
 // MARK - Bridges
 
@@ -186,7 +199,13 @@ public protocol RequestBridge {
 *  be modified or replaced.
 */
 public protocol ResponseBridge {
-    func process<ReturnType>(endpoint: Endpoint<ReturnType>, response: NSHTTPURLResponse?, responseObject: ResponseObject) -> Bool
+    func process<ReturnType>(endpoint: Endpoint<ReturnType>, response: NSHTTPURLResponse?, responseObject: ResponseObject) -> ProcessResults
+}
+
+public enum BridgeErrorType: ErrorType {
+    case Internal
+    case Parsing
+    case Cancelled
 }
 
 

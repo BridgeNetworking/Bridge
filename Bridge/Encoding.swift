@@ -18,7 +18,6 @@ public enum Encoding {
             return (mutableRequest, nil)
         }
         
-        
         var error: NSError? = nil
         
         switch self {

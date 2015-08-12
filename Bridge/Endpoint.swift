@@ -8,7 +8,6 @@
 
 import Foundation
 
-
 // MARK: - Endpoint
 public enum HTTPMethod: String {
     case GET = "GET"
@@ -18,49 +17,58 @@ public enum HTTPMethod: String {
 }
 
 public protocol Parseable {
-    init()
-    static func parseResponseObject(responseObject: AnyObject) -> AnyObject
+    static func parseResponseObject(responseObject: AnyObject) throws -> AnyObject
 }
 
 extension Array : Parseable {
-    public static func parseResponseObject(responseObject: AnyObject) -> AnyObject {
+    public static func parseResponseObject(responseObject: AnyObject) throws -> AnyObject {
         if let referenceType = self.Element.self as? Parseable.Type {
             if let responseArray = responseObject as? Array<AnyObject> {
-                let response = responseArray.map({ referenceType.parseResponseObject($0)}).map({ $0 })
-                return response
+                let parsedResponse: NSMutableArray = []
+                for obj in responseArray {
+                    do {
+                        let parsedObj = try referenceType.parseResponseObject(obj)
+                        parsedResponse.addObject(parsedObj)
+                    } catch let error {
+                        throw error
+                    }
+                }
+                return parsedResponse
             }
         }
-        return Array<AnyObject>() // TODO : implement error handling
+        throw BridgeErrorType.Parsing
     }
 }
 
 extension String: Parseable {
-    public static func parseResponseObject(responseObject: AnyObject) -> AnyObject {
+    public static func parseResponseObject(responseObject: AnyObject) throws -> AnyObject {
         if let resp = responseObject as? String {
             return resp
         }
-        return "" // TODO : implement error handling
+        throw BridgeErrorType.Parsing
     }
 }
 
 extension Dictionary: Parseable {
-    public static func parseResponseObject(responseObject: AnyObject) -> AnyObject {
+    public static func parseResponseObject(responseObject: AnyObject) throws -> AnyObject {
         if let resp = responseObject as? Dictionary<String, AnyObject> {
             return resp
         }
-        return Dictionary<String, AnyObject>() // TODO : implement error handling
+        throw BridgeErrorType.Parsing
     }
 }
 
 public typealias Dict = Dictionary<String, AnyObject>
 
-public struct Endpoint<ReturnType where ReturnType:Parseable> {
+public typealias ProcessResults = (shouldContinue: Bool, bridgeError: BridgeErrorType?)
+
+public struct Endpoint <ReturnType where ReturnType : Parseable> {
     
     public typealias EndpointSuccess = ((response: ReturnType) -> ())
-    public typealias EndpointFailure = ((error: NSError?) -> ())
+    public typealias EndpointFailure = ((errorType: ErrorType, data: NSData?, request: NSURLRequest, response: NSURLResponse?, responseObject: AnyObject?) -> ())
     
     public typealias RequestBridgeBlock = ((endpoint: Endpoint<ReturnType>, mutableRequest: NSMutableURLRequest) -> ())
-    public typealias ResponseBridgeBlock = ((endpoint: Endpoint<ReturnType>, response: NSHTTPURLResponse?, responseObject: ResponseObject) -> ())
+    public typealias ResponseBridgeBlock = ((endpoint: Endpoint<ReturnType>, response: NSHTTPURLResponse?, responseObject: ResponseObject) -> (ProcessResults))
     
     /// The route or relative path of your endpoint
     public var route: String
@@ -99,7 +107,7 @@ public struct Endpoint<ReturnType where ReturnType:Parseable> {
     // Meta data for tracking
     public private(set) var tag: String?
     
-    public init(_ route: String, method verb: HTTPMethod, before: RequestBridgeBlock = { (_,_) in }, after: ResponseBridgeBlock = { (_,_,_) in }, client: Bridge = Bridge.sharedInstance) {
+    public init(_ route: String, method verb: HTTPMethod, before: RequestBridgeBlock? = nil, after: ResponseBridgeBlock? = nil, client: Bridge = Bridge.sharedInstance) {
         self.route = route
         self.method = verb
         self.client = client
