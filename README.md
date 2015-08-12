@@ -35,7 +35,7 @@ public protocol RequestBridge {
 *  the request is returned with a response.
 */
 public protocol ResponseBridge {
-    func process<ReturnType>(endpoint: Endpoint<ReturnType>, response: NSHTTPURLResponse?, responseObject: ResponseObject) -> Bool
+    func process<ReturnType>(endpoint: Endpoint<ReturnType>, response: NSHTTPURLResponse?, responseObject: ResponseObject) -> ProcessResults
 }
 
 ```
@@ -50,7 +50,7 @@ Bridge is implemented using generics which allow you to serialize to objects as 
 
 ```
 public protocol Parseable {
-    static func parseResponseObject(responseObject: AnyObject) -> AnyObject
+    static func parseResponseObject(responseObject: AnyObject) throws -> AnyObject
 }
 ```
 
@@ -62,13 +62,15 @@ struct User: Parseable {
   var age: Int?
   var pictureURL: NSURL?
 
-  public static func parseResponseObject(responseObject: AnyObject) -> AnyObject {
+  public static func parseResponseObject(responseObject: AnyObject) throws -> AnyObject {
       if let dict = responseObject = Dictionary<String, AnyObject> {
         let user = User()
         user.name = dict["name"]
         user.age = dict["age"]
         user.pictureURL = NSURL(string: dict["picture"])
-    }
+      }
+      // If parsing encounters an error, throw enum that conforms to ErrorType.
+      throw YourErrorType.Case
   }
 }
 ```
@@ -80,21 +82,21 @@ You can also serialize them using whatever serialization libraries you like. Thi
 
 extension MTLModel: Parseable {
 
-    public static func parseResponseObject(responseObject: AnyObject) -> AnyObject {
+    public static func parseResponseObject(responseObject: AnyObject) throws -> AnyObject {
         if let JSON = responseObject as? Array<AnyObject> {
             do {
                 return try MTLJSONAdapter.modelsOfClass(self, fromJSONArray: JSON) as! [MTLModel]
             } catch {
-                print(error)
+                throw BridgeErrorType.Parsing
             }
         } else if let JSON = responseObject as? Dictionary<NSObject, AnyObject> {
             do {
-                return MTLJSONAdapter.modelOfClass(self, fromJSONDictionary: JSON) as! MTLModel
+                return try MTLJSONAdapter.modelOfClass(self, fromJSONDictionary: JSON) as! MTLModel
             } catch {
-                print(error)
+                throw BridgeErrorType.Parsing
             }
         }
-        return responseObject
+        throw BridgeErrorType.Parsing
     }
 }
 
