@@ -65,7 +65,7 @@ public typealias ProcessResults = (shouldContinue: Bool, bridgeError: BridgeErro
 public struct Endpoint <ReturnType where ReturnType : Parseable> {
     
     public typealias EndpointSuccess = ((response: ReturnType) -> ())
-    public typealias EndpointFailure = ((errorType: ErrorType, data: NSData?, request: NSURLRequest, response: NSURLResponse?, responseObject: AnyObject?) -> ())
+    public typealias EndpointFailure = ((error: NSError, data: NSData?, request: NSURLRequest, response: NSURLResponse?, responseObject: AnyObject?) -> ())
     
     public typealias RequestBridgeBlock = ((endpoint: Endpoint<ReturnType>, mutableRequest: NSMutableURLRequest) -> ())
     public typealias ResponseBridgeBlock = ((endpoint: Endpoint<ReturnType>, response: NSHTTPURLResponse?, responseObject: ResponseObject) -> (ProcessResults))

@@ -77,8 +77,9 @@ public class Bridge {
         
         // If there's an error, just return the data task with a failure
         if let _ = encodingResult.1 {
+            let error = BridgeErrorType.Internal as NSError
             let request = mutableRequest.copy() as! NSURLRequest
-            endpoint.failureBlock?(errorType: BridgeErrorType.Internal, data: nil, request: request, response: nil, responseObject: nil)
+            endpoint.failureBlock?(error: error, data: nil, request: request, response: nil, responseObject: nil)
         }
         
         // Get the finished NSMutableURLRequest after parameter encoding
@@ -96,7 +97,7 @@ public class Bridge {
                 if (error.domain == NSURLErrorDomain && error.code == NSURLErrorCancelled) {
                     errorTypeForFailureBlock = BridgeErrorType.Cancelled
                 } else {
-                    errorTypeForFailureBlock = BridgeErrorType.Internal
+                    errorTypeForFailureBlock = error as ErrorType
                 }
             } else {
                 if let dat = data {
@@ -136,7 +137,8 @@ public class Bridge {
             dispatch_async(dispatch_get_main_queue(), { () -> Void in
                 let request = mutableRequest.copy() as! NSURLRequest
                 let respObj = responseObject?.rawValue()
-                endpoint.failureBlock?(errorType: errorTypeForFailureBlock, data: data, request: request, response: response, responseObject: respObj)
+                let error = errorTypeForFailureBlock as NSError
+                endpoint.failureBlock?(error: error, data: data, request: request, response: response, responseObject: respObj)
             })
             return
         })

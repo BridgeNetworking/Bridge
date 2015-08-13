@@ -23,21 +23,21 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 //            success: { (response) in
 //                print(response)
 //            },
-//            failure: { (errorType, data, request, response, responseObject) in
-//                print("errorType: \(errorType) \ndata:\(data) \nrequest:\(request) \nresponse:\(response) \nresponseObjectt:\(responseObject)")
+//            failure: { (error, data, request, response, responseObject) in
+//                print("error: \(error) \ndata:\(data) \nrequest:\(request) \nresponse:\(response) \nresponseObjectt:\(responseObject)")
 //        })
 //        Bridge.sharedInstance.cancelWithTag(":user")
         
-        let listEndpoint = Endpoint<Array<GithubUser>>("https://api.github.com/users", method: .GET)
-        listEndpoint.execute(
-            tag: ":users",
-            success: { (response) in
-                print(response)
-            },
-            failure: { (errorType, data, request, response, responseObject) in
-                print("errorType: \(errorType) \ndata:\(data) \nrequest:\(request) \nresponse:\(response) \nresponseObjectt:\(responseObject)")
-        })
-        Bridge.sharedInstance.cancelWithTag(":users")
+//        let listEndpoint = Endpoint<Array<GithubUser>>("https://api.github.com/users", method: .GET)
+//        listEndpoint.execute(
+//            tag: ":users",
+//            success: { (response) in
+//                print(response)
+//            },
+//            failure: { (error, data, request, response, responseObject) in
+//                print("error: \(error) \ndata:\(data) \nrequest:\(request) \nresponse:\(response) \nresponseObjectt:\(responseObject)")
+//        })
+//        Bridge.sharedInstance.cancelWithTag(":users")
 
         return true
     }
