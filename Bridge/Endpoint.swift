@@ -24,16 +24,16 @@ extension Array : Parseable {
     public static func parseResponseObject(responseObject: AnyObject) throws -> AnyObject {
         if let referenceType = self.Element.self as? Parseable.Type {
             if let responseArray = responseObject as? Array<AnyObject> {
-                let parsedResponse: NSMutableArray = []
+                var parsedResponse: Array<Element> = []
                 for obj in responseArray {
                     do {
                         let parsedObj = try referenceType.parseResponseObject(obj)
-                        parsedResponse.addObject(parsedObj)
+                        parsedResponse.append(parsedObj as! Element)
                     } catch let error {
                         throw error
                     }
                 }
-                return parsedResponse
+                return parsedResponse as! AnyObject
             }
         }
         throw BridgeErrorType.Parsing
@@ -65,7 +65,7 @@ public typealias ProcessResults = (shouldContinue: Bool, bridgeError: BridgeErro
 public struct Endpoint <ReturnType where ReturnType : Parseable> {
     
     public typealias EndpointSuccess = ((response: ReturnType) -> ())
-    public typealias EndpointFailure = ((error: NSError, data: NSData?, request: NSURLRequest, response: NSURLResponse?, responseObject: AnyObject?) -> ())
+    public typealias EndpointFailure = ((error: NSError, data: NSData?, request: NSURLRequest, response: NSURLResponse?) -> ())
     
     public typealias RequestBridgeBlock = ((endpoint: Endpoint<ReturnType>, mutableRequest: NSMutableURLRequest) -> ())
     public typealias ResponseBridgeBlock = ((endpoint: Endpoint<ReturnType>, response: NSHTTPURLResponse?, responseObject: ResponseObject) -> (ProcessResults))
@@ -125,7 +125,7 @@ public struct Endpoint <ReturnType where ReturnType : Parseable> {
     
     :returns: the `NSURLSessionDataTask` which was executed
     */
-    public func execute(id: String? = nil, params: Dictionary<String, AnyObject>? = nil, tag: String? = nil, success: EndpointSuccess?, failure: EndpointFailure? = nil) -> NSURLSessionDataTask {
+    public func execute(id: String? = nil, params: Dictionary<String, AnyObject>? = nil, tag: String? = nil, success: EndpointSuccess?, failure: EndpointFailure? = nil) {
         
         var executionCopy = self
         

@@ -17,26 +17,26 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
         // Override point for customization after application launch.
 
-//        let endpoint = Endpoint<GithubUser>("https://api.github.com/users/johnny-zumper", method: .GET)
-//        endpoint.execute(
-//            tag: ":user",
-//            success: { (response) in
-//                print(response)
-//            },
-//            failure: { (error, data, request, response, responseObject) in
-//                print("error: \(error) \ndata:\(data) \nrequest:\(request) \nresponse:\(response) \nresponseObject:\(responseObject)")
-//        })
+        let endpoint = Endpoint<GithubUser>("https://api.github.com/users/johnny-zumper", method: .GET)
+        endpoint.execute(
+            tag: ":user",
+            success: { (response) in
+                print(response)
+            },
+            failure: { (error, data, request, response) in
+                print("error: \(error) \ndata:\(data) \nrequest:\(request) \nresponse:\(response)")
+        })
 //        Bridge.sharedInstance.cancelWithTag(":user")
         
-//        let listEndpoint = Endpoint<Array<GithubUser>>("https://api.github.com/users", method: .GET)
-//        listEndpoint.execute(
-//            tag: ":users",
-//            success: { (response) in
-//                print(response)
-//            },
-//            failure: { (error, data, request, response, responseObject) i
-//                print("error: \(error) \ndata:\(data) \nrequest:\(request) \nresponse:\(response) \nresponseObject:\(responseObject)")
-//        })
+        let listEndpoint = Endpoint<Array<GithubUser>>("https://api.github.com/users", method: .GET)
+        listEndpoint.execute(
+            tag: ":users",
+            success: { (response) in
+                print(response)
+            },
+            failure: { (error, data, request, response) in
+                print("error: \(error) \ndata:\(data) \nrequest:\(request) \nresponse:\(response)")
+        })
 //        Bridge.sharedInstance.cancelWithTag(":users")
 
         return true
@@ -85,4 +85,3 @@ extension MTLModel: Parseable {
         throw BridgeErrorType.Parsing
     }
 }
-
