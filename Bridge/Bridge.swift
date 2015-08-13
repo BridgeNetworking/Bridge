@@ -15,6 +15,7 @@ public class Bridge {
     
     // Debug Settings
     var debugMode: Bool = true
+    var acceptableStatusCodes = Set<Int>(200...299)
     
     public var baseURL: NSURL?
     
@@ -102,28 +103,39 @@ public class Bridge {
             } else {
                 if let dat = data {
                     if endpoint.encoding.serialize(dat).0 != nil {
+                        
                         responseObject = endpoint.encoding.serialize(dat).0!
                         let processResults = self.processResponseBridges(endpoint, response: response as? NSHTTPURLResponse, responseObject: responseObject!)
+                        
                         if let errorFromResults = processResults.bridgeError {
                             errorTypeForFailureBlock = errorFromResults
                         } else if !processResults.shouldContinue {
-                           return // If at this point we still don't want to continue just return
+                            return // If at this point we still don't want to continue just return
                         } else {
-                            do {
-                                if let serializedObject = try ReturnType.parseResponseObject(responseObject!.rawValue()) as? ReturnType {
-                                    if self.debugMode {
-                                        print("Request Completed with response: \(response!)")
-                                        print("\(serializedObject)")
+                            // Check if status code is an acceptable one, or else it's still considered as an error
+                            if let httpResponse = response as? NSHTTPURLResponse {
+                                if self.acceptableStatusCodes.contains(httpResponse.statusCode) {
+                                    do {
+                                        if let serializedObject = try ReturnType.parseResponseObject(responseObject!.rawValue()) as? ReturnType {
+                                            if self.debugMode {
+                                                print("Request Completed with response: \(response!)")
+                                                print("\(serializedObject)")
+                                            }
+                                            dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                                                endpoint.successBlock?(response: serializedObject)
+                                            })
+                                            return
+                                        } else {
+                                            errorTypeForFailureBlock = BridgeErrorType.Parsing
+                                        }
+                                    } catch let error {
+                                        errorTypeForFailureBlock = error
                                     }
-                                    dispatch_async(dispatch_get_main_queue(), { () -> Void in
-                                        endpoint.successBlock?(response: serializedObject)
-                                    })
-                                    return
                                 } else {
-                                    errorTypeForFailureBlock = BridgeErrorType.Parsing
+                                    errorTypeForFailureBlock = BridgeErrorType.Server
                                 }
-                            } catch let error {
-                                errorTypeForFailureBlock = error
+                            } else {
+                                errorTypeForFailureBlock = BridgeErrorType.Internal
                             }
                         }
                     }
@@ -207,6 +219,7 @@ public protocol ResponseBridge {
 public enum BridgeErrorType: ErrorType {
     case Internal
     case Parsing
+    case Server
     case Cancelled
 }
 

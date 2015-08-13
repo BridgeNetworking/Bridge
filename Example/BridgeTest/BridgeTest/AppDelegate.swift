@@ -24,7 +24,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 //                print(response)
 //            },
 //            failure: { (error, data, request, response, responseObject) in
-//                print("error: \(error) \ndata:\(data) \nrequest:\(request) \nresponse:\(response) \nresponseObjectt:\(responseObject)")
+//                print("error: \(error) \ndata:\(data) \nrequest:\(request) \nresponse:\(response) \nresponseObject:\(responseObject)")
 //        })
 //        Bridge.sharedInstance.cancelWithTag(":user")
         
@@ -34,8 +34,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 //            success: { (response) in
 //                print(response)
 //            },
-//            failure: { (error, data, request, response, responseObject) in
-//                print("error: \(error) \ndata:\(data) \nrequest:\(request) \nresponse:\(response) \nresponseObjectt:\(responseObject)")
+//            failure: { (error, data, request, response, responseObject) i
+//                print("error: \(error) \ndata:\(data) \nrequest:\(request) \nresponse:\(response) \nresponseObject:\(responseObject)")
 //        })
 //        Bridge.sharedInstance.cancelWithTag(":users")
 
