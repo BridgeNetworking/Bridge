@@ -175,7 +175,7 @@ public class Bridge {
     func processResponseBridges<ReturnType>(endpoint: Endpoint<ReturnType>, response: NSHTTPURLResponse?, responseObject: ResponseObject) -> ProcessResults {
         for Bridge in self.responseBridges {
             let processResults = Bridge.process(endpoint, response: response, responseObject: responseObject)
-            let shouldContinueProcessing = (processResults.bridgeError != nil || !processResults.shouldContinue)
+            let shouldContinueProcessing = (processResults.bridgeError != nil || processResults.shouldContinue)
             if !shouldContinueProcessing {
                 return processResults
             }
