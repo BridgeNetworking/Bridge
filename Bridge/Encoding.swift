@@ -54,7 +54,7 @@ public enum Encoding {
         return mutableRequest
     }
     
-    func serialize(data: NSData) throws -> ResponseObject {
+    public func serialize(data: NSData) throws -> ResponseObject {
         switch self {
         case .JSON:
             let serializedObject: AnyObject?
