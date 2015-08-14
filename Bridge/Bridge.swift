@@ -137,30 +137,29 @@ public class Bridge {
         
         let processResults = self.processResponseBridges(endpoint, response: response as? NSHTTPURLResponse, responseObject: responseObject)
         
+        // If there was an error from a response bridge, throw the error
         if let errorFromResults = processResults.bridgeError {
              throw errorFromResults
-        } else if !processResults.shouldContinue {
-            // If at this point we still don't want to continue just return
-            return nil
-        } else {
-            
-            guard let httpResponse = response as? NSHTTPURLResponse else {
-                throw BridgeErrorType.Internal
-            }
-            
-            // Check if status code is an acceptable one, or else it's still considered as an error
-            guard self.acceptableStatusCodes.contains(httpResponse.statusCode) else {
-                throw BridgeErrorType.Server
-            }
-            
-            do {
-                let serializedObject = try ReturnType.parseResponseObject(responseObject.rawValue()) as! ReturnType
-                return serializedObject
-                
-            } catch let error {
-                throw error
-            }
         }
+        
+        // If we should not continue this particular execution, return nil
+        guard processResults.shouldContinue else {
+            return nil
+        }
+        
+        // If the HTTP response does not cast as a NSHTTPURLResponse, throw an internal error
+        guard let httpResponse = response as? NSHTTPURLResponse else {
+            throw BridgeErrorType.Internal
+        }
+        
+        // Check if status code is an acceptable one, or else it's still considered as an error
+        guard self.acceptableStatusCodes.contains(httpResponse.statusCode) else {
+            throw BridgeErrorType.Server
+        }
+        
+        // Try to return serialized object otherwise.
+        let serializedObject = try ReturnType.parseResponseObject(responseObject.rawValue()) as! ReturnType
+        return serializedObject
     }
     
     
