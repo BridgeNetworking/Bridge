@@ -27,6 +27,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		D033A6AE1B85848600AEBBA0 /* Bridge.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Bridge.h; sourceTree = "<group>"; };
 		E77A6DDD1B6A690800070837 /* Bridge.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Bridge.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		E77A6DE21B6A690800070837 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		E77A6DE81B6A695100070837 /* Bridge.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Bridge.swift; sourceTree = "<group>"; };
@@ -68,6 +69,7 @@
 				E77A6DE91B6A695100070837 /* Encoding.swift */,
 				E77A6DEA1B6A695100070837 /* Endpoint.swift */,
 				E77A6DE21B6A690800070837 /* Info.plist */,
+				D033A6AE1B85848600AEBBA0 /* Bridge.h */,
 			);
 			path = Bridge;
 			sourceTree = "<group>";
