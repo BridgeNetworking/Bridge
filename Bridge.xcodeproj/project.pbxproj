@@ -21,6 +21,7 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
+		D033A6AF1B8585E200AEBBA0 /* Bridge.h in Headers */ = {isa = PBXBuildFile; fileRef = D033A6AE1B85848600AEBBA0 /* Bridge.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E77A6DEB1B6A695100070837 /* Bridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = E77A6DE81B6A695100070837 /* Bridge.swift */; };
 		E77A6DEC1B6A695100070837 /* Encoding.swift in Sources */ = {isa = PBXBuildFile; fileRef = E77A6DE91B6A695100070837 /* Encoding.swift */; };
 		E77A6DED1B6A695100070837 /* Endpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = E77A6DEA1B6A695100070837 /* Endpoint.swift */; };
@@ -81,6 +82,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D033A6AF1B8585E200AEBBA0 /* Bridge.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
