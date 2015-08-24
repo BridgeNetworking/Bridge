@@ -40,8 +40,8 @@ public protocol ResponseBridge {
 
 ```
 Examples:
-- [Retry]() (Retries requests on response if not 2xx code)
-- [Model Cache]() (Caches objects on response)
+- [Retry](https://gist.github.com/rawrjustin/1e35c5998a53a987b23d) (Retries requests on response if not 2xx code)
+- [Model Cache](https://gist.github.com/rawrjustin/7331da16d6e637db20dc) (Caches objects on response)
 - [Method Tunneling]() (Changes the HTTP Verb)
 
 
