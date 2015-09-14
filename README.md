@@ -152,6 +152,10 @@ endpoint.execute(success: { (users: Array<GithubUser>) in
 ## Advanced Features
 
 #### Cancellation by Tag
+Easiily cancel any requests tagged with an identifier. 
+```
+Bridge.sharedInstance.cancelWithTag("DebouncedSearch")
+```
 
 #### Additional HTTP headers
 
