@@ -67,8 +67,8 @@ public struct Endpoint <ReturnType where ReturnType : Parseable> {
     public typealias EndpointSuccess = ((response: ReturnType) -> ())
     public typealias EndpointFailure = ((error: NSError, data: NSData?, request: NSURLRequest, response: NSURLResponse?) -> ())
     
-    public typealias RequestBridgeBlock = ((endpoint: Endpoint<ReturnType>, mutableRequest: NSMutableURLRequest) -> ())
-    public typealias ResponseBridgeBlock = ((endpoint: Endpoint<ReturnType>, response: NSHTTPURLResponse?, responseObject: ResponseObject) -> (ProcessResults))
+    public typealias RequestInterceptorBlock = ((endpoint: Endpoint<ReturnType>, mutableRequest: NSMutableURLRequest) -> ())
+    public typealias ResponseInterceptorBlock = ((endpoint: Endpoint<ReturnType>, response: NSHTTPURLResponse?, responseObject: ResponseObject) -> (ProcessResults))
     
     /// The route or relative path of your endpoint
     public var route: String
@@ -101,18 +101,18 @@ public struct Endpoint <ReturnType where ReturnType : Parseable> {
     public private(set) var failureBlock: EndpointFailure?
     
     // Endpoint Specific Bridges and Bridge exemptions
-    var requestBridge: RequestBridgeBlock?
-    var responseBridge: ResponseBridgeBlock?
+    var requestInterceptor: RequestInterceptorBlock?
+    var responseInterceptor: ResponseInterceptorBlock?
     
     // Meta data for tracking
     public private(set) var tag: String?
     
-    public init(_ route: String, method verb: HTTPMethod, before: RequestBridgeBlock? = nil, after: ResponseBridgeBlock? = nil, client: Bridge = Bridge.sharedInstance) {
+    public init(_ route: String, method verb: HTTPMethod, before: RequestInterceptorBlock? = nil, after: ResponseInterceptorBlock? = nil, client: Bridge = Bridge.sharedInstance) {
         self.route = route
         self.method = verb
         self.client = client
-        self.requestBridge = before
-        self.responseBridge = after
+        self.requestInterceptor = before
+        self.responseInterceptor = after
     }
     
     /**

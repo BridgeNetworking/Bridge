@@ -9,8 +9,8 @@
 import UIKit
 
 public class Bridge {
-    public var responseBridges: Array<ResponseBridge> = []
-    public var requestBridges: Array<RequestBridge> = []
+    public var responseInterceptors: Array<ResponseInterceptor> = []
+    public var requestInterceptors: Array<RequestInterceptor> = []
     public var tasksByTag: NSMapTable = NSMapTable(keyOptions: NSPointerFunctionsOptions.StrongMemory, valueOptions: NSPointerFunctionsOptions.WeakMemory)
     
     // Debug Settings
@@ -64,7 +64,7 @@ public class Bridge {
             var request = try endpoint.encoding.encode(mutableRequest, parameters: endpoint.params)
             
             // Process all custom serialization through Bridges
-            request = processRequestBridges(endpoint, mutableRequest: &request)
+            request = processRequestInterceptors(endpoint, mutableRequest: &request)
             let dataTask = self.createDataTask(endpoint, request: request)
             
             if self.debugMode {
@@ -145,7 +145,7 @@ public class Bridge {
     
     func processResponse<ReturnType>(endpoint: Endpoint<ReturnType>, responseObject: ResponseObject, response: NSURLResponse?, error: NSError?) throws -> ReturnType? {
         
-        let processResults = self.processResponseBridges(endpoint, response: response as? NSHTTPURLResponse, responseObject: responseObject)
+        let processResults = self.processResponseInterceptors(endpoint, response: response as? NSHTTPURLResponse, responseObject: responseObject)
         
         // If there was an error from a response bridge, throw the error
         if let errorFromResults = processResults.bridgeError {
@@ -173,16 +173,16 @@ public class Bridge {
     }
     
     
-    func attemptCustomResponseBridge<ReturnType>(endpoint: Endpoint<ReturnType>, response: NSHTTPURLResponse?, responseObject: ResponseObject) -> ProcessResults {
-        if let after = endpoint.responseBridge {
+    func attemptCustomResponseInterceptor<ReturnType>(endpoint: Endpoint<ReturnType>, response: NSHTTPURLResponse?, responseObject: ResponseObject) -> ProcessResults {
+        if let after = endpoint.responseInterceptor {
             return after(endpoint: endpoint, response: response, responseObject: responseObject)
         } else {
             return ProcessResults(true, nil)
         }
     }
     
-    func processResponseBridges<ReturnType>(endpoint: Endpoint<ReturnType>, response: NSHTTPURLResponse?, responseObject: ResponseObject) -> ProcessResults {
-        for Bridge in self.responseBridges {
+    func processResponseInterceptors<ReturnType>(endpoint: Endpoint<ReturnType>, response: NSHTTPURLResponse?, responseObject: ResponseObject) -> ProcessResults {
+        for Bridge in self.responseInterceptors {
             let processResults = Bridge.process(endpoint, response: response, responseObject: responseObject)
             let shouldContinueProcessing = (processResults.bridgeError != nil || processResults.shouldContinue)
             if !shouldContinueProcessing {
@@ -191,12 +191,12 @@ public class Bridge {
         }
         
         // Finally check and execute custom endpoint Bridges if any are attached
-        return attemptCustomResponseBridge(endpoint, response: response, responseObject: responseObject)
+        return attemptCustomResponseInterceptor(endpoint, response: response, responseObject: responseObject)
     }
     
-    func processRequestBridges<ReturnType>(endpoint: Endpoint<ReturnType>, inout mutableRequest: NSMutableURLRequest) -> NSMutableURLRequest {
+    func processRequestInterceptors<ReturnType>(endpoint: Endpoint<ReturnType>, inout mutableRequest: NSMutableURLRequest) -> NSMutableURLRequest {
         var processedRequest: NSMutableURLRequest = mutableRequest.mutableCopy() as! NSMutableURLRequest
-        for Bridge in self.requestBridges {
+        for Bridge in self.requestInterceptors {
             Bridge.process(endpoint, mutableRequest: &processedRequest)
         }
         return processedRequest
@@ -208,20 +208,20 @@ public class Bridge {
 typealias EndpointIdentifier = String
 
 /**
-*  Conform to the `RequestBridge` protocol for any Bridge that
+*  Conform to the `RequestInterceptor` protocol for any Bridge that
 *  needs to work with or alter a request before it's sent over the wire
 */
-public protocol RequestBridge {
+public protocol RequestInterceptor {
     func process<ReturnType>(endpoint: Endpoint<ReturnType>, inout mutableRequest: NSMutableURLRequest)
 }
 
 /**
-*  Conform to the `ResponseBridge` protocol to work with data after
+*  Conform to the `ResponseInterceptor` protocol to work with data after
 *  the request is returned with a response. `responseObject` is a pointer
 *  to the resposne object that your endpoint has responded with and can
 *  be modified or replaced.
 */
-public protocol ResponseBridge {
+public protocol ResponseInterceptor {
     func process<ReturnType>(endpoint: Endpoint<ReturnType>, response: NSHTTPURLResponse?, responseObject: ResponseObject) -> ProcessResults
 }
 
