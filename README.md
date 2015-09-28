@@ -1,12 +1,6 @@
 # Bridge [![Carthage compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
 Simple Typed JSON HTTP Networking in Swift 2.0
 
-## TODO
-- [ ] Documentation
-- [ ] Error handling
-- [ ] More Encoding Types (URL, Plist, XML)
-- [ ] Multi-part form data
-
 #### GET
 ```
 let endpoint = Endpoint<GithubUser>("https://api.github.com/users/whatever", method: .GET)
