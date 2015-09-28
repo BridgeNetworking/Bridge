@@ -7,34 +7,46 @@ Simple Typed JSON HTTP Networking in Swift 2.0
 - [ ] More Encoding Types (URL, Plist, XML)
 - [ ] Multi-part form data
 
+#### GET
 ```
-var endpoint = GET<GithubUser>("https://api.github.com/users/whatever")
+let endpoint = Endpoint<GithubUser>("https://api.github.com/users/whatever", method: .GET)
 endpoint.execute(success: { (user: GithubUser) in
     print(user)
 })
 ```
 
+#### POST
+```
+let userComment = ["justin": "wow this is cool"]
+let endpoint = Endpoint<Comment>("https://api.bridge.com/comments", method: .POST)
+endpoint.execute(params: userComment, success: { (commentResponse: Comment) -> () in
+    print(response)
+}, failure: { (error, data, request, response) in
+    // Handle failure
+})
+```
 
-## Bridges
 
-The power of Bridge is that it lets you create custom "Bridges" to process your requests before they are sent off to the internets, or to process your responses before they are returned to the success block.
+## Interceptors
 
-Attach custom headers based on the endpoint, write retry handling, write authentication handlers, abandon REST and use method tunneling. Bridge is extremely extensible to your needs.
+The power of Bridge is that it lets you create custom "Interceptors" to intercept process your requests before they are sent off to the internets, or to intercept and process your responses before they are returned to the caller's success block.
+
+Attach custom headers based on the endpoint, write retry handling, write authentication handlers, use method tunneling. Interceptors allow Bridge to be extremely extensible to your project needs.
 
 ```
 /**
-*  Conform to the `RequestBridge` protocol for any Bridge that
+*  Conform to the `ResponseInterceptor` protocol for any Bridge that
 *  needs to work with or alter a request before it's sent over the wire
 */
-public protocol RequestBridge {
+public protocol ResponseInterceptor {
     func process<ReturnType>(endpoint: Endpoint<ReturnType>, inout mutableRequest: NSMutableURLRequest)
 }
 
 /**
-*  Conform to the `ResponseBridge` protocol to work with data after
+*  Conform to the `ResponseInterceptor` protocol to work with data after
 *  the request is returned with a response.
 */
-public protocol ResponseBridge {
+public protocol ResponseInterceptor {
     func process<ReturnType>(endpoint: Endpoint<ReturnType>, response: NSHTTPURLResponse?, responseObject: ResponseObject) -> ProcessResults
 }
 
@@ -152,14 +164,14 @@ endpoint.execute(success: { (users: Array<GithubUser>) in
 ## Advanced Features
 
 #### Cancellation by Tag
-Easiily cancel any requests tagged with an identifier. 
+Easiily cancel any requests tagged with an identifier.
 ```
 Bridge.sharedInstance.cancelWithTag("DebouncedSearch")
 ```
 
 #### Additional HTTP headers
 
-#### Endpoint Specific Bridges
+#### Endpoint Specific Interceptors
 
 ## Requirements
  - iOS 8.0+
