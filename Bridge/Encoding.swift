@@ -24,7 +24,7 @@ public enum Encoding {
             case .GET, .DELETE:
                 // Encode params in the URL of the request
                 let mappedParameters = (parameters!).map({ (key, value) in (key, self.escapeString("\(key)") + "=" + self.escapeString("\(value)") ) })
-                var flattenedString = mappedParameters.reduce("", combine: { $0 + $1.1 + "&" } )
+                let flattenedString = mappedParameters.reduce("", combine: { $0 + $1.1 + "&" } )
                 
                 // Append the leading `?` character for url encoded requests
                 // and drop the trailing `&` from the reduce
@@ -78,6 +78,13 @@ public enum Encoding {
         let escapedString = string.stringByAddingPercentEncodingWithAllowedCharacters(customAllowedSet)
         return escapedString!
     }
+    
+    public func serializeToString(data: NSData) -> String? {
+        switch self {
+        case .JSON:
+            return String(data: data, encoding: NSUTF8StringEncoding)
+        }
+    }
 }
 
 public enum ResponseObject {
@@ -101,5 +108,5 @@ public enum ResponseObject {
             return nil
         }
     }
-
+    
 }

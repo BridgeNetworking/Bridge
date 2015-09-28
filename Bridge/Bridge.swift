@@ -104,6 +104,11 @@ public class Bridge {
                         if self.debugMode {
                             print("Request Completed with response: \(response!)")
                             print("\(serializedObject)")
+                            if let returnData = data {
+                                if let dataString = endpoint.encoding.serializeToString(returnData) {
+                                    print("\(dataString)")
+                                }
+                            }
                         }
                         
                         endpoint.successBlock?(response: serializedObject)
@@ -117,6 +122,11 @@ public class Bridge {
                     
                     if self.debugMode {
                         print("Request Failed with errorType: \(error)")
+                        if let returnData = data {
+                            if let dataString = endpoint.encoding.serializeToString(returnData) {
+                                print("\(dataString)")
+                            }
+                        }
                     }
                     
                     let request = request.copy() as! NSURLRequest
@@ -139,7 +149,7 @@ public class Bridge {
         
         // If there was an error from a response bridge, throw the error
         if let errorFromResults = processResults.bridgeError {
-             throw errorFromResults
+            throw errorFromResults
         }
         
         // If we should not continue this particular execution, return nil
