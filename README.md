@@ -12,9 +12,9 @@ endpoint.execute(success: { (user: GithubUser) in
 #### POST
 ```
 let userComment = ["justin": "wow this is cool"]
-let endpoint = Endpoint<Comment>("https://api.bridge.com/comments", method: .POST)
-endpoint.execute(params: userComment, success: { (commentResponse: Comment) -> () in
-    print(response)
+let endpoint = Endpoint<[String: AnyObject]>("https://api.bridge.com/comments", method: .POST)
+endpoint.execute(params: userComment, success: { (commentResponse: [String: AnyObject]) -> () in
+    print(response)  // {"success": true}
 }, failure: { (error, data, request, response) in
     // Handle failure
 })
