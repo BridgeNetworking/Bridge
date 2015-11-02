@@ -14,7 +14,7 @@ public class Bridge {
     public var tasksByTag: NSMapTable = NSMapTable(keyOptions: NSPointerFunctionsOptions.StrongMemory, valueOptions: NSPointerFunctionsOptions.WeakMemory)
     
     // Debug Settings
-    var debugMode: Bool = true
+    var debugMode: Bool = false
     var acceptableStatusCodes = Set<Int>(200...299)
     
     public var baseURL: NSURL?
