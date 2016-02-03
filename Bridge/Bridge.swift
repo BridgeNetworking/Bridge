@@ -12,6 +12,7 @@ public class Bridge {
     public var responseInterceptors: Array<ResponseInterceptor> = []
     public var requestInterceptors: Array<RequestInterceptor> = []
     public var tasksByTag: NSMapTable = NSMapTable(keyOptions: NSPointerFunctionsOptions.StrongMemory, valueOptions: NSPointerFunctionsOptions.WeakMemory)
+    static let tasksLockQueue: String = "com.Bridge.TasksByTagLockQueue"
     
     // Debug Settings
     var debugMode: Bool = false
@@ -32,20 +33,26 @@ public class Bridge {
         }()
     
     public func cancelWithTag(tag: String) {
-        let cancelKeys = NSMutableSet()
-        let enumerator = self.tasksByTag.keyEnumerator()
-        while let key: AnyObject = enumerator.nextObject() {
-            if let k = key as? String {
-                if (k.hasPrefix(tag)) {
-                    cancelKeys.addObject(key)
+        let lockQueue = dispatch_queue_create(Bridge.tasksLockQueue, nil)
+        dispatch_sync(lockQueue) {
+            let cancelKeys = NSMutableSet()
+            let enumerator = self.tasksByTag.keyEnumerator()
+            while let key: AnyObject = enumerator.nextObject() {
+                if let k = key as? String {
+                    
+                    // Can cancel batches of calls with the same prefix
+                    // i.e. Home:Profile, Home:Stream, Home:Favorites
+                    if (k.hasPrefix(tag)) {
+                        cancelKeys.addObject(key)
+                    }
                 }
             }
-        }
-        
-        for key in cancelKeys {
-            if let k = key as? String {
-                if let task = self.tasksByTag.objectForKey(k) as? NSURLSessionDataTask {
-                    task.cancel()
+            
+            for key in cancelKeys {
+                if let k = key as? String {
+                    if let task = self.tasksByTag.objectForKey(k) as? NSURLSessionDataTask {
+                        task.cancel()
+                    }
                 }
             }
         }
@@ -137,7 +144,10 @@ public class Bridge {
         
         // Set task object to be tracked if a non nil tag is provided
         if let tag = endpoint.tag {
-            self.tasksByTag.setObject(dataTask, forKey: "\(tag)-\(dataTask.taskIdentifier)")
+            let lockQueue = dispatch_queue_create(Bridge.tasksLockQueue, nil)
+            dispatch_sync(lockQueue) {
+                self.tasksByTag.setObject(dataTask, forKey: "\(tag)-\(dataTask.taskIdentifier)")
+            }
         }
         
         return dataTask
