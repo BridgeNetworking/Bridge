@@ -12,8 +12,8 @@ public class Bridge {
     public var responseInterceptors: Array<ResponseInterceptor> = []
     public var requestInterceptors: Array<RequestInterceptor> = []
     public var tasksByTag: NSMapTable = NSMapTable(keyOptions: NSPointerFunctionsOptions.StrongMemory, valueOptions: NSPointerFunctionsOptions.WeakMemory)
-    static let tasksLockQueue: String = "com.Bridge.TasksByTagLockQueue"
-    
+    static let tasksLockQueue: dispatch_queue_t = dispatch_queue_create("com.Bridge.TasksByTagLockQueue", nil)
+
     // Debug Settings
     var debugMode: Bool = false
     var acceptableStatusCodes = Set<Int>(200...299)
@@ -33,8 +33,7 @@ public class Bridge {
         }()
     
     public func cancelWithTag(tag: String) {
-        let lockQueue = dispatch_queue_create(Bridge.tasksLockQueue, nil)
-        dispatch_sync(lockQueue) {
+        dispatch_sync(Bridge.tasksLockQueue) {
             let cancelKeys = NSMutableSet()
             let enumerator = self.tasksByTag.keyEnumerator()
             while let key: AnyObject = enumerator.nextObject() {
@@ -144,8 +143,7 @@ public class Bridge {
         
         // Set task object to be tracked if a non nil tag is provided
         if let tag = endpoint.tag {
-            let lockQueue = dispatch_queue_create(Bridge.tasksLockQueue, nil)
-            dispatch_sync(lockQueue) {
+            dispatch_sync(Bridge.tasksLockQueue) {
                 self.tasksByTag.setObject(dataTask, forKey: "\(tag)-\(dataTask.taskIdentifier)")
             }
         }
