@@ -10,15 +10,12 @@ Pod::Spec.new do |s|
   s.name         = "Bridge"
   s.version      = "0.3.3"
   s.summary      = "Extremely Extensible Typed JSON HTTP Networking in Swift"
-  s.description  = <<-DESC
-                   DESC
-
   s.homepage     = "https://github.com/rawrjustin/Bridge"
   s.license      = "MIT"
   s.author             = { "Justin Huang" => "justingotemail@gmail.com" }
   s.social_media_url   = "http://twitter.com/rawrjustin"
   s.platform     = :ios, "8.0"
-  s.source       = { :git => "http://www.github.com/rawrjustin/Bridge.git", :tag => "#{s.version}" }
+  s.source       = { :git => "https://github.com/rawrjustin/Bridge.git", :tag => "#{s.version}" }
   s.source_files  = "Bridge/*"
 
   s.public_header_files = "Bridge/*.h"
