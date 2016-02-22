@@ -173,9 +173,14 @@ Bridge.sharedInstance.cancelWithTag("DebouncedSearch")
 
 ## Installation
 
-[Carthage]((https://github.com/Carthage/Carthage)) is the preferred method of installation
+[Cocoapods](http://cocoapods.org/)
 
-just add to your Cartfile:
+```
+pod 'Bridge', '0.3.3'
+```
+
+[Carthage]((https://github.com/Carthage/Carthage))
+
 ```
 github "rawrjustin/Bridge"
 ```
