@@ -1,7 +1,0 @@
-version: "Apple Swift version 2.0 (swiftlang-700.0.47.4 clang-700.0.59.1)"
-options: "ac6da2b69a88cb004b6f6caa07a9a446"
-build_time: [491942393, 876599000]
-inputs: 
-	"/Users/justin/Zumper/Bridge/Bridge/Bridge.swift": [491593161, 0]
-	"/Users/justin/Zumper/Bridge/Bridge/Encoding.swift": [491600751, 0]
-	"/Users/justin/Zumper/Bridge/Bridge/Endpoint.swift": [491581236, 0]
