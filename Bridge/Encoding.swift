@@ -74,7 +74,9 @@ public enum Encoding {
     
     func escapeString(string: String) -> String {
         let allowedDelimiters = ":#[]@!$&'()*+,;="
-        let customAllowedSet =  NSCharacterSet(charactersInString: allowedDelimiters).invertedSet
+        let customAllowedSet = NSCharacterSet.URLQueryAllowedCharacterSet().mutableCopy() as! NSMutableCharacterSet
+        customAllowedSet.removeCharactersInString(allowedDelimiters)
+        
         let escapedString = string.stringByAddingPercentEncodingWithAllowedCharacters(customAllowedSet)
         return escapedString!
     }
