@@ -62,7 +62,31 @@ public typealias Dict = Dictionary<String, AnyObject>
 
 public typealias ProcessResults = (shouldContinue: Bool, bridgeError: BridgeErrorType?)
 
-public struct Endpoint <ReturnType where ReturnType : Parseable> {
+public class GET <ReturnType where ReturnType : Parseable> : Endpoint<ReturnType> {
+    public init(_ route: String, before: RequestInterceptorBlock? = nil, after: ResponseInterceptorBlock? = nil, client: Bridge = Bridge.sharedInstance) {
+       super.init(route, method: .GET, before: before, after: after, client: client)
+    }
+}
+
+public class POST <ReturnType where ReturnType : Parseable> : Endpoint<ReturnType> {
+    public init(_ route: String, before: RequestInterceptorBlock? = nil, after: ResponseInterceptorBlock? = nil, client: Bridge = Bridge.sharedInstance) {
+        super.init(route, method: .POST, before: before, after: after, client: client)
+    }
+}
+
+public class PUT <ReturnType where ReturnType : Parseable> : Endpoint<ReturnType> {
+    public init(_ route: String, before: RequestInterceptorBlock? = nil, after: ResponseInterceptorBlock? = nil, client: Bridge = Bridge.sharedInstance) {
+        super.init(route, method: .PUT, before: before, after: after, client: client)
+    }
+}
+
+public class DELETE <ReturnType where ReturnType : Parseable> : Endpoint<ReturnType> {
+    public init(_ route: String, before: RequestInterceptorBlock? = nil, after: ResponseInterceptorBlock? = nil, client: Bridge = Bridge.sharedInstance) {
+        super.init(route, method: .DELETE, before: before, after: after, client: client)
+    }
+}
+
+public class Endpoint <ReturnType where ReturnType : Parseable>: NSObject, NSCopying {
     
     public typealias EndpointSuccess = ((response: ReturnType) -> ())
     public typealias EndpointFailure = ((error: NSError, data: NSData?, request: NSURLRequest, response: NSURLResponse?) -> ())
@@ -77,7 +101,7 @@ public struct Endpoint <ReturnType where ReturnType : Parseable> {
     public var method: HTTPMethod
     
     // Encoding: JSON only for now
-    public var encoding: Encoding = .JSON
+    public var encoding: Encoding!
     
     // The api client which will be making the requests, currently an AFNetworking shared client
     // but can be replaced with any networking interface layer
@@ -107,7 +131,7 @@ public struct Endpoint <ReturnType where ReturnType : Parseable> {
     // Meta data for tracking
     public private(set) var tag: String?
     
-    public init(_ route: String, method verb: HTTPMethod, before: RequestInterceptorBlock? = nil, after: ResponseInterceptorBlock? = nil, client: Bridge = Bridge.sharedInstance) {
+    public required init(_ route: String, method verb: HTTPMethod, before: RequestInterceptorBlock? = nil, after: ResponseInterceptorBlock? = nil, client: Bridge = Bridge.sharedInstance) {
         self.route = route
         self.method = verb
         self.client = client
@@ -125,26 +149,33 @@ public struct Endpoint <ReturnType where ReturnType : Parseable> {
     
     :returns: the `NSURLSessionDataTask` which was executed
     */
-    public func execute(id: String? = nil, params: Dictionary<String, AnyObject>? = nil, tag: String? = nil, success: EndpointSuccess?, failure: EndpointFailure? = nil) {
+    public func execute(vars: String..., params: Dictionary<String, AnyObject>? = nil, tag: String? = nil, success: EndpointSuccess?, failure: EndpointFailure? = nil) {
         
-        var executionCopy = self
+        let executionCopy: Endpoint<ReturnType> = self.copy() as! Endpoint<ReturnType>
         
-        executionCopy.identifier = self.identifier != nil ? self.identifier : NSUUID().UUIDString
+        executionCopy.identifier = NSUUID().UUIDString
         
         executionCopy.successBlock = success
         executionCopy.failureBlock = failure
+        executionCopy.encoding = .JSON
         
         executionCopy.params = params
         executionCopy.tag = tag
         
-        if let resourceId = id {
-            executionCopy.route = executionCopy.route.stringByReplacingOccurrencesOfString("#", withString: resourceId, options: .LiteralSearch, range: nil)
+        for varString in vars {
+            if let range = executionCopy.route.rangeOfString("#") {
+                executionCopy.route = executionCopy.route.stringByReplacingCharactersInRange(range, withString: varString)
+            } else {
+                // There are more variables passed in
+                // than there are variable markers
+            }
         }
-        return self.client.execute(executionCopy)
+        print(executionCopy.route)
+        self.client.execute(executionCopy)
     }
     
     
-    public mutating func attach(property: String, value: Any) -> Endpoint<ReturnType> {
+    public func attach(property: String, value: Any) -> Endpoint<ReturnType> {
         self.properties[property] = value
         return self
     }
@@ -161,38 +192,14 @@ public struct Endpoint <ReturnType where ReturnType : Parseable> {
     public func requestPath() -> String {
         return self.client.baseURL != nil ? self.client.baseURL!.absoluteString + self.route : self.route
     }
-}
-
-// MARK: - Printable
-
-extension Endpoint {
-    public var description: String {
-        get {
-            var desc: String = ""
-            
-            desc += method.rawValue + space() + requestPath() + newLine()
-            
-            if let requestParameters = params {
-                desc += "params: " + requestParameters.description + newLine()
-            }
-            
-            if !properties.isEmpty {
-                desc += "User defined properties: " + properties.description + newLine()
-            }
-            
-            if let requestTag = tag {
-                desc += "Request Tag: " + requestTag + newLine()
-            }
-            return desc
-        }
-    }
     
-    func space() -> String {
-        return " "
-    }
+    // NSCopying protocol
     
-    func newLine() -> String {
-        return "\n"
+    public func copyWithZone(zone: NSZone) -> AnyObject {
+        let endpointCopy = self.dynamicType.init(self.route, method: self.method, before:self.requestInterceptor, after: self.responseInterceptor, client: self.client)
+        endpointCopy.params = self.params
+        endpointCopy.properties = self.properties
+        return endpointCopy
     }
 }
 
