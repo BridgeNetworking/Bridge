@@ -22,3 +22,6 @@ xcuserdata/
 *.moved-aside
 *.xccheckout
 *.xcscmblueprint
+
+## Mac OSX
+.DS_Store

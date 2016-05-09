@@ -23,7 +23,13 @@ public enum Encoding {
             switch HTTPMethod(rawValue: mutableRequest.HTTPMethod)! {
             case .GET, .DELETE:
                 // Encode params in the URL of the request
-                let mappedParameters = (parameters!).map({ (key, value) in (key, self.escapeString("\(key)") + "=" + self.escapeString("\(value)") ) })
+                let mappedParameters: Array<(key: String, value: String)> = (parameters!).map({ (key, value) in
+                    if let collection = value as? [AnyObject] {
+                        return (key, self.escapeString("\(key)") + "=" + (collection.reduce("", combine: { $0 + ($0.characters.isEmpty ? "" : ",") + self.escapeString("\($1)")})))
+                    } else {
+                        return (key, self.escapeString("\(key)") + "=" + self.escapeString("\(value)") )
+                    }
+                })
                 let flattenedString = mappedParameters.reduce("", combine: { $0 + $1.1 + "&" } )
                 
                 // Append the leading `?` character for url encoded requests
