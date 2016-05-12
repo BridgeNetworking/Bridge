@@ -100,7 +100,7 @@ public class Endpoint <ReturnType where ReturnType : Parseable>: NSObject, NSCop
     // The HTTP verb as defined in the `HTTPMethod` enum to access this endpoint with
     public var method: HTTPMethod
     
-    // Encoding: JSON only for now
+    // Encoding: JSON only for now. Set in init
     public var encoding: Encoding!
     
     // The api client which will be making the requests, currently an AFNetworking shared client
@@ -134,6 +134,7 @@ public class Endpoint <ReturnType where ReturnType : Parseable>: NSObject, NSCop
     public required init(_ route: String, method verb: HTTPMethod, before: RequestInterceptorBlock? = nil, after: ResponseInterceptorBlock? = nil, client: Bridge = Bridge.sharedInstance) {
         self.route = route
         self.method = verb
+        self.encoding = .JSON
         self.client = client
         self.requestInterceptor = before
         self.responseInterceptor = after
@@ -157,7 +158,6 @@ public class Endpoint <ReturnType where ReturnType : Parseable>: NSObject, NSCop
         
         executionCopy.successBlock = success
         executionCopy.failureBlock = failure
-        executionCopy.encoding = .JSON
         
         executionCopy.params = params
         executionCopy.tag = tag
