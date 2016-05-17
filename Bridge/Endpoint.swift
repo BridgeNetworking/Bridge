@@ -103,6 +103,9 @@ public class Endpoint <ReturnType where ReturnType : Parseable>: NSObject, NSCop
     // Encoding: JSON only for now. Set in init
     public var encoding: Encoding!
     
+    // Accept Cookies
+    public var acceptsCookies: Bool = false
+    
     // The api client which will be making the requests, currently an AFNetworking shared client
     // but can be replaced with any networking interface layer
     // TODO: Make this interface less dependent on AFNetworking

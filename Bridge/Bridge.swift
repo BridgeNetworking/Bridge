@@ -63,7 +63,7 @@ public class Bridge {
     
     func execute<ReturnType>(endpoint: Endpoint<ReturnType>) {
         let mutableRequest = NSMutableURLRequest(URL: NSURL(string: endpoint.route, relativeToURL: self.baseURL)!)
-        mutableRequest.HTTPShouldHandleCookies = false
+        mutableRequest.HTTPShouldHandleCookies = endpoint.acceptsCookies
         mutableRequest.HTTPMethod = endpoint.method.rawValue
         
         do {
