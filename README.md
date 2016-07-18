@@ -137,7 +137,7 @@ Similar to how Rails maps :id for resources, `#` is used as the character where 
 [Cocoapods](http://cocoapods.org/)
 
 ```
-pod 'Bridge', '0.4'
+pod 'Bridge', '0.4.1'
 ```
 
 [Carthage](https://github.com/Carthage/Carthage)
