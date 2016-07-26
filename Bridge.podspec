@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name         = "Bridge"
-  s.version      = "0.4.1"
+  s.version      = "0.4.2"
   s.summary      = "Extremely Extensible Typed JSON HTTP Networking in Swift"
   s.homepage     = "https://github.com/rawrjustin/Bridge"
   s.license      = "MIT"

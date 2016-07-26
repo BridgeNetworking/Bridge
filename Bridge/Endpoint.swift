@@ -17,13 +17,13 @@ public enum HTTPMethod: String {
 }
 
 public protocol Parseable {
-    static func parseResponseObject(responseObject: AnyObject) throws -> AnyObject
+    static func parseResponseObject(_ responseObject: Any) throws -> Any
 }
 
 extension Array : Parseable {
-    public static func parseResponseObject(responseObject: AnyObject) throws -> AnyObject {
+    public static func parseResponseObject(_ responseObject: Any) throws -> Any {
         if let referenceType = self.Element.self as? Parseable.Type {
-            if let responseArray = responseObject as? Array<AnyObject> {
+            if let responseArray = responseObject as? Array<Any> {
                 var parsedResponse: Array<Element> = []
                 for obj in responseArray {
                     do {
@@ -33,66 +33,86 @@ extension Array : Parseable {
                         throw error
                     }
                 }
-                return parsedResponse as! AnyObject
+                return parsedResponse
             }
         }
-        throw BridgeErrorType.Parsing
+        throw BridgeErrorType.parsing
     }
 }
 
 extension String: Parseable {
-    public static func parseResponseObject(responseObject: AnyObject) throws -> AnyObject {
+    public static func parseResponseObject(_ responseObject: Any) throws -> Any {
         if let resp = responseObject as? String {
             return resp
         }
-        throw BridgeErrorType.Parsing
+        throw BridgeErrorType.parsing
     }
 }
 
 extension Dictionary: Parseable {
-    public static func parseResponseObject(responseObject: AnyObject) throws -> AnyObject {
-        if let resp = responseObject as? Dictionary<String, AnyObject> {
+    public static func parseResponseObject(_ responseObject: Any) throws -> Any {
+        if let resp = responseObject as? Dict {
             return resp
         }
-        throw BridgeErrorType.Parsing
+        throw BridgeErrorType.parsing
     }
 }
 
-public typealias Dict = Dictionary<String, AnyObject>
+public typealias Dict = Dictionary<String, Any>
 
 public typealias ProcessResults = (shouldContinue: Bool, bridgeError: BridgeErrorType?)
 
-public class GET <ReturnType where ReturnType : Parseable> : Endpoint<ReturnType> {
+public class GET <ReturnType> : Endpoint<ReturnType> where ReturnType : Parseable {
     public init(_ route: String, before: RequestInterceptorBlock? = nil, after: ResponseInterceptorBlock? = nil, client: Bridge = Bridge.sharedInstance) {
        super.init(route, method: .GET, before: before, after: after, client: client)
     }
+
+    public required init(_ route: String, method verb: HTTPMethod, before: RequestInterceptorBlock?, after: ResponseInterceptorBlock?, client: Bridge) {
+        guard verb == .GET else { fatalError("Initializing with non-matching HTTPMethod") }
+        super.init(route, method: verb, before: before, after: after, client: client)
+    }
 }
 
-public class POST <ReturnType where ReturnType : Parseable> : Endpoint<ReturnType> {
+public class POST <ReturnType> : Endpoint<ReturnType> where ReturnType : Parseable {
     public init(_ route: String, before: RequestInterceptorBlock? = nil, after: ResponseInterceptorBlock? = nil, client: Bridge = Bridge.sharedInstance) {
         super.init(route, method: .POST, before: before, after: after, client: client)
     }
+
+    public required init(_ route: String, method verb: HTTPMethod, before: RequestInterceptorBlock?, after: ResponseInterceptorBlock?, client: Bridge) {
+        guard verb == .POST else { fatalError("Initializing with non-matching HTTPMethod") }
+        super.init(route, method: verb, before: before, after: after, client: client)
+    }
 }
 
-public class PUT <ReturnType where ReturnType : Parseable> : Endpoint<ReturnType> {
+public class PUT <ReturnType> : Endpoint<ReturnType> where ReturnType : Parseable {
     public init(_ route: String, before: RequestInterceptorBlock? = nil, after: ResponseInterceptorBlock? = nil, client: Bridge = Bridge.sharedInstance) {
         super.init(route, method: .PUT, before: before, after: after, client: client)
     }
-}
 
-public class DELETE <ReturnType where ReturnType : Parseable> : Endpoint<ReturnType> {
-    public init(_ route: String, before: RequestInterceptorBlock? = nil, after: ResponseInterceptorBlock? = nil, client: Bridge = Bridge.sharedInstance) {
-        super.init(route, method: .DELETE, before: before, after: after, client: client)
+    public required init(_ route: String, method verb: HTTPMethod, before: RequestInterceptorBlock?, after: ResponseInterceptorBlock?, client: Bridge) {
+        guard verb == .PUT else { fatalError("Initializing with non-matching HTTPMethod") }
+        super.init(route, method: verb, before: before, after: after, client: client)
     }
 }
 
-public class Endpoint <ReturnType where ReturnType : Parseable>: NSObject, NSCopying {
+public class DELETE <ReturnType> : Endpoint<ReturnType> where ReturnType : Parseable {
+    public init(_ route: String, before: RequestInterceptorBlock? = nil, after: ResponseInterceptorBlock? = nil, client: Bridge = Bridge.sharedInstance) {
+        super.init(route, method: .DELETE, before: before, after: after, client: client)
+    }
+
+    public required init(_ route: String, method verb: HTTPMethod, before: RequestInterceptorBlock?, after: ResponseInterceptorBlock?, client: Bridge) {
+        guard verb == .DELETE else { fatalError("Initializing with non-matching HTTPMethod") }
+        super.init(route, method: verb, before: before, after: after, client: client)
+    }
+}
+
+public class Endpoint <ReturnType>: NSObject, NSCopying where ReturnType : Parseable {
     
-    public typealias EndpointSuccess = ((response: ReturnType) -> ())
-    public typealias EndpointFailure = ((error: NSError, data: NSData?, request: NSURLRequest, response: NSURLResponse?) -> ())
+    public typealias EndpointSuccess = ((_ response: ReturnType) -> ())
+    public typealias EndpointFailure = ((_: NSError, _: Data?, _: URLRequest, _: URLResponse?) -> ())
     
-    public typealias RequestInterceptorBlock = ((endpoint: Endpoint<ReturnType>, mutableRequest: NSMutableURLRequest) -> ())
-    public typealias ResponseInterceptorBlock = ((endpoint: Endpoint<ReturnType>, response: NSHTTPURLResponse?, responseObject: ResponseObject) -> (ProcessResults))
+    public typealias RequestInterceptorBlock = ((_: Endpoint<ReturnType>, _: NSMutableURLRequest) -> ())
+    public typealias ResponseInterceptorBlock = ((_: Endpoint<ReturnType>, _: HTTPURLResponse?, _: ResponseObject) -> (ProcessResults))
     
     /// The route or relative path of your endpoint
     public var route: String
@@ -112,7 +132,7 @@ public class Endpoint <ReturnType where ReturnType : Parseable>: NSObject, NSCop
     public var client: Bridge
     
     // Parameters for this endpoint when executing
-    public var params: Dictionary<String, AnyObject>?
+    public var params: Dict?
     
     // UUID for each endpoint
     // TODO: Spec if still needed.
@@ -137,7 +157,7 @@ public class Endpoint <ReturnType where ReturnType : Parseable>: NSObject, NSCop
     public required init(_ route: String, method verb: HTTPMethod, before: RequestInterceptorBlock? = nil, after: ResponseInterceptorBlock? = nil, client: Bridge = Bridge.sharedInstance) {
         self.route = route
         self.method = verb
-        self.encoding = .JSON
+        self.encoding = .json
         self.client = client
         self.requestInterceptor = before
         self.responseInterceptor = after
@@ -153,11 +173,11 @@ public class Endpoint <ReturnType where ReturnType : Parseable>: NSObject, NSCop
     
     :returns: the `NSURLSessionDataTask` which was executed
     */
-    public func execute(vars: String..., params: Dictionary<String, AnyObject>? = nil, tag: String? = nil, success: EndpointSuccess?, failure: EndpointFailure? = nil) {
+    public func execute(_ vars: String..., params: Dict? = nil, tag: String? = nil, success: EndpointSuccess?, failure: EndpointFailure? = nil) {
         
         let executionCopy: Endpoint<ReturnType> = self.copy() as! Endpoint<ReturnType>
         
-        executionCopy.identifier = NSUUID().UUIDString
+        executionCopy.identifier = UUID().uuidString
         
         executionCopy.successBlock = success
         executionCopy.failureBlock = failure
@@ -166,19 +186,18 @@ public class Endpoint <ReturnType where ReturnType : Parseable>: NSObject, NSCop
         executionCopy.tag = tag
         
         for varString in vars {
-            if let range = executionCopy.route.rangeOfString("#") {
-                executionCopy.route = executionCopy.route.stringByReplacingCharactersInRange(range, withString: varString)
+            if let range = executionCopy.route.range(of: "#") {
+                executionCopy.route = executionCopy.route.replacingCharacters(in: range, with: varString)
             } else {
                 // There are more variables passed in
                 // than there are variable markers
             }
         }
-        print(executionCopy.route)
         self.client.execute(executionCopy)
     }
     
     
-    public func attach(property: String, value: Any) -> Endpoint<ReturnType> {
+    public func attach(_ property: String, value: Any) -> Endpoint<ReturnType> {
         self.properties[property] = value
         return self
     }
@@ -198,8 +217,8 @@ public class Endpoint <ReturnType where ReturnType : Parseable>: NSObject, NSCop
     
     // NSCopying protocol
     
-    public func copyWithZone(zone: NSZone) -> AnyObject {
-        let endpointCopy = self.dynamicType.init(self.route, method: self.method, before:self.requestInterceptor, after: self.responseInterceptor, client: self.client)
+    public func copy(with zone: NSZone? = nil) -> Any {
+        let endpointCopy = type(of: self).init(self.route, method: self.method, before:self.requestInterceptor, after: self.responseInterceptor, client: self.client)
         endpointCopy.params = self.params
         endpointCopy.properties = self.properties
         return endpointCopy

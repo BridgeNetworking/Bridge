@@ -1,6 +1,6 @@
 # Bridge [![Carthage compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)[![CocoaPods Compatible](https://img.shields.io/cocoapods/v/Bridge.svg)](https://img.shields.io/cocoapods/v/Bridge.svg)
 
-Simple Typed JSON HTTP Networking in Swift 2.0
+Simple Typed JSON HTTP Networking in Swift 3.0
 
 #### GET
 ```swift
@@ -130,14 +130,14 @@ Similar to how Rails maps :id for resources, `#` is used as the character where 
 
 ## Requirements
  - iOS 8.0+
- - Swift 2.0
+ - Swift 3.0
 
 ## Installation
 
 [Cocoapods](http://cocoapods.org/)
 
 ```
-pod 'Bridge', '0.4.1'
+pod 'Bridge', '0.4.2'
 ```
 
 [Carthage](https://github.com/Carthage/Carthage)
