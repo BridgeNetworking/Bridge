@@ -8,29 +8,29 @@
 
 import Foundation
 
-public class Bridge {
+public class Bridge: NSObject, URLSessionDelegate {
     public var responseInterceptors: Array<ResponseInterceptor> = []
     public var requestInterceptors: Array<RequestInterceptor> = []
     public var tasksByTag: NSMapTable<NSString, AnyObject> = NSMapTable<NSString, AnyObject>(keyOptions: NSPointerFunctions.Options(), valueOptions: NSPointerFunctions.Options.weakMemory)
     static let tasksLockQueue: DispatchQueue = DispatchQueue(label: "com.Bridge.TasksByTagLockQueue", attributes: [])
 
     // Debug Settings
-    var debugMode: Bool = false
-    var acceptableStatusCodes = Set<Int>(200...299)
+    public var isDebugMode: Bool = false
     
+    private let acceptableStatusCodes = Set<Int>(200...299)
     public var baseURL: URL?
     
-    let session: URLSession = {
-        var sessionConfig = URLSessionConfiguration.default
+    private lazy var session: URLSession = {
+        var sessionConfig: URLSessionConfiguration = .default
         sessionConfig.httpAdditionalHeaders = ["Content-Type": "application/json"]
         
-        var urlSession = URLSession(configuration: sessionConfig)
+        let urlSession = URLSession(configuration: sessionConfig, delegate: self, delegateQueue: nil)
         return urlSession
         }()
     
     public static let sharedInstance: Bridge = {
         return Bridge()
-        }()
+    }()
     
     public func cancelWithTag(_ tag: String) {
         Bridge.tasksLockQueue.sync {
@@ -57,11 +57,7 @@ public class Bridge {
         }
     }
     
-    public func enableDebugLogging() {
-        self.debugMode = true
-    }
-    
-    func execute<ReturnType>(_ endpoint: Endpoint<ReturnType>) {
+    internal func execute<ReturnType>(_ endpoint: Endpoint<ReturnType>) {
         let mutableRequest = NSMutableURLRequest(url: URL(string: endpoint.route, relativeTo: self.baseURL!)!)
         mutableRequest.httpShouldHandleCookies = endpoint.acceptsCookies
         mutableRequest.httpMethod = endpoint.method.rawValue
@@ -73,7 +69,7 @@ public class Bridge {
             request = processRequestInterceptors(endpoint, mutableRequest: &request)
             let dataTask = self.createDataTask(endpoint, request: request.copy() as! URLRequest)
             
-            if self.debugMode {
+            if self.isDebugMode {
                 print("Making request to: \(endpoint.method.rawValue) \(endpoint.requestPath())")
                 if let requestParams = endpoint.params {
                     print("with parameters: \(requestParams.description)")
@@ -90,7 +86,7 @@ public class Bridge {
         }
     }
     
-    func createDataTask<ReturnType>(_ endpoint: Endpoint<ReturnType>, request: URLRequest) -> URLSessionDataTask {
+    private func createDataTask<ReturnType>(_ endpoint: Endpoint<ReturnType>, request: URLRequest) -> URLSessionDataTask {
         var dataTask: URLSessionDataTask
         dataTask = Bridge.sharedInstance.session.dataTask(with: request, completionHandler: { (data: Data?, response: URLResponse?, err: Error?) -> Void in
             do {
@@ -107,7 +103,7 @@ public class Bridge {
                 if let serializedObject = try self.processResponse(endpoint, responseObject: responseObject, response: response, error: err as NSError?) {
                     DispatchQueue.main.async(execute: { () -> Void in
                         
-                        if self.debugMode {
+                        if self.isDebugMode {
                             print("Request Completed with response: \(response!)")
                             print("\(serializedObject)")
                             if let returnData = data {
@@ -126,7 +122,7 @@ public class Bridge {
                 
                 DispatchQueue.main.async(execute: { () -> Void in
                     
-                    if self.debugMode {
+                    if self.isDebugMode {
                         print("Request Failed with errorType: \(error)")
                         if let returnData = data {
                             if let dataString = endpoint.encoding.serializeToString(returnData) {
@@ -151,7 +147,7 @@ public class Bridge {
         return dataTask
     }
     
-    func processResponse<ReturnType>(_ endpoint: Endpoint<ReturnType>, responseObject: ResponseObject, response: URLResponse?, error: NSError?) throws -> ReturnType? {
+    private func processResponse<ReturnType>(_ endpoint: Endpoint<ReturnType>, responseObject: ResponseObject, response: URLResponse?, error: NSError?) throws -> ReturnType? {
         
         let processResults = self.processResponseInterceptors(endpoint, response: response as? HTTPURLResponse, responseObject: responseObject)
         
@@ -181,7 +177,7 @@ public class Bridge {
     }
     
     
-    func attemptCustomResponseInterceptor<ReturnType>(_ endpoint: Endpoint<ReturnType>, response: HTTPURLResponse?, responseObject: ResponseObject) -> ProcessResults {
+    private func attemptCustomResponseInterceptor<ReturnType>(_ endpoint: Endpoint<ReturnType>, response: HTTPURLResponse?, responseObject: ResponseObject) -> ProcessResults {
         if let after = endpoint.responseInterceptor {
             return after(endpoint, response, responseObject)
         } else {
@@ -189,7 +185,7 @@ public class Bridge {
         }
     }
     
-    func processResponseInterceptors<ReturnType>(_ endpoint: Endpoint<ReturnType>, response: HTTPURLResponse?, responseObject: ResponseObject) -> ProcessResults {
+    private func processResponseInterceptors<ReturnType>(_ endpoint: Endpoint<ReturnType>, response: HTTPURLResponse?, responseObject: ResponseObject) -> ProcessResults {
         for Bridge in self.responseInterceptors {
             let processResults = Bridge.process(endpoint, response: response, responseObject: responseObject)
             let shouldContinueProcessing = (processResults.bridgeError != nil || processResults.shouldContinue)
@@ -202,12 +198,24 @@ public class Bridge {
         return attemptCustomResponseInterceptor(endpoint, response: response, responseObject: responseObject)
     }
     
-    func processRequestInterceptors<ReturnType>(_ endpoint: Endpoint<ReturnType>, mutableRequest: inout NSMutableURLRequest) -> NSMutableURLRequest {
+    private func processRequestInterceptors<ReturnType>(_ endpoint: Endpoint<ReturnType>, mutableRequest: inout NSMutableURLRequest) -> NSMutableURLRequest {
         var processedRequest: NSMutableURLRequest = mutableRequest.mutableCopy() as! NSMutableURLRequest
         for Bridge in self.requestInterceptors {
             Bridge.process(endpoint, mutableRequest: &processedRequest)
         }
         return processedRequest
+    }
+    
+    // MARK: - URLSessionDelegate
+    
+    public func urlSession(_ session: URLSession,
+                           didReceive challenge: URLAuthenticationChallenge,
+                           completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Swift.Void) {
+        if self.isDebugMode, let trust = challenge.protectionSpace.serverTrust {
+            completionHandler(.useCredential, URLCredential(trust: trust))
+        } else {
+            completionHandler(.performDefaultHandling, nil)
+        }
     }
 }
 

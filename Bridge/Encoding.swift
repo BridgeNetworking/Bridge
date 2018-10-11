@@ -26,7 +26,7 @@ public enum Encoding {
                 // Encode params in the URL of the request
                 let mappedParameters: Array<(key: String, value: String)> = (parameters).map({ (key, value) in
                     if let collection = value as? [Any] {
-                        return (key, self.escapeString("\(key)") + "=" + (collection.reduce("", { $0 + ($0.characters.isEmpty ? "" : ",") + self.escapeString("\($1)")})))
+                        return (key, self.escapeString("\(key)") + "=" + (collection.reduce("", { $0 + ($0.isEmpty ? "" : ",") + self.escapeString("\($1)")})))
                     } else {
                         return (key, self.escapeString("\(key)") + "=" + self.escapeString("\(value)") )
                     }
@@ -35,7 +35,7 @@ public enum Encoding {
                 
                 // Append the leading `?` character for url encoded requests
                 // and drop the trailing `&` from the reduce
-                let queryString = "?" + String(flattenedString.characters.dropLast())
+                let queryString = "?" + String(flattenedString.dropLast())
                 
                 let baseURL = mutableRequest.url
                 mutableRequest.url = URL(string: queryString, relativeTo: baseURL!)
