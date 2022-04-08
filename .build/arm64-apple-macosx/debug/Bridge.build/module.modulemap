@@ -1,0 +1,4 @@
+module Bridge {
+    header "/Users/justin/Code/Bridge/.build/arm64-apple-macosx/debug/Bridge.build/Bridge-Swift.h"
+    requires objc
+}

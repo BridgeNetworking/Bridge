@@ -1,0 +1,23 @@
+{
+  "": {
+    "swift-dependencies": "/Users/justin/Code/Bridge/.build/arm64-apple-macosx/debug/Bridge.build/master.swiftdeps"
+  },
+  "/Users/justin/Code/Bridge/Sources/Bridge/Bridge.swift": {
+    "dependencies": "/Users/justin/Code/Bridge/.build/arm64-apple-macosx/debug/Bridge.build/Bridge/Bridge.d",
+    "object": "/Users/justin/Code/Bridge/.build/arm64-apple-macosx/debug/Bridge.build/Bridge/Bridge.swift.o",
+    "swiftmodule": "/Users/justin/Code/Bridge/.build/arm64-apple-macosx/debug/Bridge.build/Bridge/Bridge~partial.swiftmodule",
+    "swift-dependencies": "/Users/justin/Code/Bridge/.build/arm64-apple-macosx/debug/Bridge.build/Bridge/Bridge.swiftdeps"
+  },
+  "/Users/justin/Code/Bridge/Sources/Bridge/Encoding.swift": {
+    "dependencies": "/Users/justin/Code/Bridge/.build/arm64-apple-macosx/debug/Bridge.build/Bridge/Encoding.d",
+    "object": "/Users/justin/Code/Bridge/.build/arm64-apple-macosx/debug/Bridge.build/Bridge/Encoding.swift.o",
+    "swiftmodule": "/Users/justin/Code/Bridge/.build/arm64-apple-macosx/debug/Bridge.build/Bridge/Encoding~partial.swiftmodule",
+    "swift-dependencies": "/Users/justin/Code/Bridge/.build/arm64-apple-macosx/debug/Bridge.build/Bridge/Encoding.swiftdeps"
+  },
+  "/Users/justin/Code/Bridge/Sources/Bridge/Endpoint.swift": {
+    "dependencies": "/Users/justin/Code/Bridge/.build/arm64-apple-macosx/debug/Bridge.build/Bridge/Endpoint.d",
+    "object": "/Users/justin/Code/Bridge/.build/arm64-apple-macosx/debug/Bridge.build/Bridge/Endpoint.swift.o",
+    "swiftmodule": "/Users/justin/Code/Bridge/.build/arm64-apple-macosx/debug/Bridge.build/Bridge/Endpoint~partial.swiftmodule",
+    "swift-dependencies": "/Users/justin/Code/Bridge/.build/arm64-apple-macosx/debug/Bridge.build/Bridge/Endpoint.swiftdeps"
+  }
+}
