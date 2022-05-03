@@ -1,12 +1,11 @@
 //: Playground - noun: a place where people can play
 
 import UIKit
-import Bridge
+//import Bridge
 import XCPlayground
 import PlaygroundSupport
 
 PlaygroundPage.current.needsIndefiniteExecution = true
-
 
 // QUERY: GET request to http://httpbin.org/ip
 // RESPONSE: Returns Dictionary<String, AnyObject>
